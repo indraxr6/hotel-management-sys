@@ -1,7 +1,8 @@
 const { user } = require('../models')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
-const secret = process.env.JWT_SECRET
+// const secret = process.env.JWT_SECRET
+const secret = "AMOGUSSSSS"
 require('dotenv').config()
 
 module.exports = {
@@ -22,7 +23,7 @@ module.exports = {
           if (foundUser) {
                bcrypt.compareSync(data.password, data.password)
                const token = jwt.sign({ id: user.id }, secret, {
-                    expiresIn: "1m"
+                    expiresIn: "1h"
                })
                return res.status(200).json({
                     status_code : 200,
