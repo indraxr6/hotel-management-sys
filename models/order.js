@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       values: ['NEW', 'CHECK-IN', 'CHECK-OUT']
     },
-    id_user: DataTypes.INTEGER
+    id_user: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'order',

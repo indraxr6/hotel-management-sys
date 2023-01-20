@@ -1,6 +1,8 @@
 const { user } = require('../../models')
-const bcrypt = require('bcrypt')
-
+const bcrypt = require('bcrypt');
+const helper = require('../../middleware/fileUpload');
+const checkExistedID = require('../../helpers/checkExistedID');
+const { generateUserID } = require('../../helpers/generateUserID');
 
 module.exports = {
      async getAll(req, res) {
@@ -27,49 +29,47 @@ module.exports = {
                })
           }
      },
-     
+
      async register(req, res) {
           try {
-            const { name, email, password } = req.body;
-        
-            // Check if photo field is present in the request
-            if (!req.files || Object.keys(req.files).length === 0) {
-              return res.status(400).json({
-                message: 'No files were uploaded.'
-              });
-            }
-        
-            const photo = req.files.photo;
-            photo.mv(`../public/images/profile/${photo.name}`, async (err) => {
-              if (err) {
-                return res.status(500).json({
-                  message: err.message
-                });
-              }
-        
-              // Hash the password using bcrypt
-              const hashedPassword = await bcrypt.hash(password, 10);
-        
-              // Create the new user
-              const data = user.create({
-                name,
-                email,
-                photo: photo.name,
-                password: hashedPassword,
-                role: 'RECEPTIONIST'
-              });
-        
-              // Return a success message
-              res.status(201).json({
-                message: 'Success created user',
-                data
-              });
-            });
+               const { name, email, password } = req.body;
+               if (!req.files || Object.keys(req.files).length === 0) {
+                    return res.status(400).json({
+                         message: 'No files were uploaded.'
+                    });
+               }
+               const id = await generateUserID()
+               while (await checkExistedID(id)) {
+                    id = generateUserID()
+               }
+               const photo = req.files.photo;
+               photo.mv(`public/images/profile/${photo.name}`, async (err) => {
+                    if (err) {
+                         return res.status(500).json({
+                              message: err.message
+                         });
+                    }
+                    const hashedPassword = await bcrypt.hash(password, 10);
+                    const data = user.create({
+                         id,
+                         name,
+                         email,
+                         photo: photo.name,
+                         password: hashedPassword,
+                         role: 'RECEPTIONIST',
+                    });
+                    res.status(201).json({
+                         status_code: 201,
+                         message: 'Success created user',
+                         data: await data
+                    });
+               });
           } catch (error) {
-            res.status(500).json({
-              message: error.message
-            });
+               res.status(500).json({
+                    status_code: 500,
+                    message: error.message
+               });
           }
-        }
+     }
 
 }
