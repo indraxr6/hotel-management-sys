@@ -8,7 +8,8 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
 
-app.use("/", require('./auth/router.auth'))
+app.use("/", require('./routes/home'))
+app.use("/auth", require('./auth/router.auth'))
 app.use("/user", require('./common/user/user.router'))
 
 db.sequelize.sync().then((req) => {

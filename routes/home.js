@@ -1,7 +1,11 @@
 const express = require('express')
-const controller = require('../controllers/home')
 const router = express.Router()
 
-router.get("/", controller.index)
+router.get("/", (req, res) => {
+     res.status(200).json({
+          status_code: 200,
+          message : "Home, hotel mng sys"
+     })
+})
 
 module.exports = router
