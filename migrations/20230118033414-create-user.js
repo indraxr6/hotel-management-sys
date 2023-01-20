@@ -16,7 +16,7 @@ module.exports = {
         allowNull: false,
       },
       photo: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: false
       },
       email: {
@@ -24,7 +24,7 @@ module.exports = {
         allowNull: false
       },
       password: {
-        type: Sequelize.TEXT,
+        type: Sequelize.STRING,
         allowNull: false
       },
       role: {

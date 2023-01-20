@@ -1,13 +1,12 @@
 const express = require('express')
 const controller = require('./user.controller')
-const upload = require('../../middleware/fileUpload')
-
 const router = express.Router()
+const fileupload = require('express-fileupload')
 
 router.get('/', controller.getAll)
 router.get('/:id', controller.getUserById)
-router.post('/register', controller.register)
-router.post('/', upload.single('photo'), controller.register);
+router.post('/register', fileupload({createParentPath : true}),controller.register)
+
 
 module.exports = router
 

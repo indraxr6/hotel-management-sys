@@ -16,39 +16,60 @@ module.exports = {
           try {
                const data = await user.findByPk(req.params.id)
                res.json(data)
-               if(!user) {
+               if (!user) {
                     return res.status(404).json({
                          message: "User not found!"
                     })
                }
-          } catch(error) {
+          } catch (error) {
                res.status(500).json({
                     message: error.message
                })
           }
      },
+     
      async register(req, res) {
           try {
-               const { name, email, password } = req.body
-               const salt = await bcrypt.genSalt(10)
-               const hashedPassword = await bcrypt.hash(password, salt)
-               const photo = req.file.path
-
-               const data = user.Create({
-                    name,
-                    email,
-                    photo, 
-                    password: hashedPassword,
-                    role: 'RECEPTIONIST'
-               })
-               res.status(201).json({
-                    message : "Success created user"
-               })
-          } catch(error) {
-               res.status(500).json({
-                    message: error.message
-               })
+            const { name, email, password } = req.body;
+        
+            // Check if photo field is present in the request
+            if (!req.files || Object.keys(req.files).length === 0) {
+              return res.status(400).json({
+                message: 'No files were uploaded.'
+              });
+            }
+        
+            const photo = req.files.photo;
+            photo.mv(`../public/images/profile/${photo.name}`, async (err) => {
+              if (err) {
+                return res.status(500).json({
+                  message: err.message
+                });
+              }
+        
+              // Hash the password using bcrypt
+              const hashedPassword = await bcrypt.hash(password, 10);
+        
+              // Create the new user
+              const data = user.create({
+                name,
+                email,
+                photo: photo.name,
+                password: hashedPassword,
+                role: 'RECEPTIONIST'
+              });
+        
+              // Return a success message
+              res.status(201).json({
+                message: 'Success created user',
+                data
+              });
+            });
+          } catch (error) {
+            res.status(500).json({
+              message: error.message
+            });
           }
-     },
+        }
 
 }
