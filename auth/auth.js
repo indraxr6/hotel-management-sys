@@ -22,7 +22,7 @@ module.exports = {
                const match = bcrypt.compare(data.password, foundUser.password)
                if (match) {
                     const token = jwt.sign({ id: user.id }, secret, {
-                         expiresIn: "1h"
+                         expiresIn : "5h"
                     })
                     return res.status(200).json({
                          status_code: 200,

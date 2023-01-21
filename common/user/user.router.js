@@ -3,11 +3,13 @@ const fileupload = require('express-fileupload')
 const controller = require('./user.controller')
 const path = require('path')
 const router = express.Router()
+const { verifyRole } = require('../../middleware/verifyRole')
+const { checkToken } = require('../../middleware/checkToken')
 
 router.get('/', controller.getAll)
 router.get('/:id', controller.getUserById)
 router.post('/register', fileupload({createParentPath : true}), controller.register)
-router.delete('/delete/:id', controller.deleteUser)
+router.delete('/delete/:id', checkToken, controller.deleteUser)
 router.put('/edit/:id',fileupload({createParentPath : true}), controller.editUser)
 
 router.get('images/:filename', (req, res) => {

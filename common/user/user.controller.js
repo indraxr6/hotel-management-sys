@@ -1,5 +1,4 @@
 const { user } = require('../../models')
-const bcrypt = require('bcrypt');
 const helper = require('../../helpers');
 
 module.exports = {
@@ -16,6 +15,7 @@ module.exports = {
                const data = await user.findByPk(req.params.id)
                if (!data) {
                     return res.status(404).json({
+                         status_code: 404,
                          message: "User not found!"
                     })
                }
@@ -26,7 +26,6 @@ module.exports = {
                })
           }
      },
-
      async register(req, res) {
           try {
                const { name, email, password } = req.body;
@@ -46,7 +45,6 @@ module.exports = {
                               message: err.message
                          });
                     }
-                    // const hashedPassword = await bcrypt.hash(password, 10);
                     const data = user.create({
                          id,
                          name,
@@ -68,7 +66,6 @@ module.exports = {
                });
           }
      },
-
      async deleteUser(req, res) {
           try {
                const id = req.params.id
@@ -109,7 +106,7 @@ module.exports = {
                          })
                     }
                     const updatedUser = await user.update({
-                         name,
+                         name ,
                          email,
                          password: await helper.hashPassword(password),
                          photo: photo.name,
