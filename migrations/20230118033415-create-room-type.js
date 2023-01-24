@@ -8,20 +8,20 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      id_order: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      id_room: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      access_date: {
-        type: Sequelize.DATE,
-        allowNull: false,
+      room_type_name: {
+        type: Sequelize.STRING,
+        allowNull: false
       },
       price: {
         type: Sequelize.INTEGER,
+        allowNull: false
+      },
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: false
+      },
+      photo: {
+        type: Sequelize.STRING,
         allowNull: false,
       },
       createdAt: {

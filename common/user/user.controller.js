@@ -5,7 +5,11 @@ module.exports = {
      async getAll(req, res) {
           try {
                const users = await user.findAll();
-               res.json(users);
+               res.status(200).json({
+                    status_code : 200,
+                    message: "Success fetch all user",
+                    data : users
+               })
           } catch (error) {
                res.status(500).json({ message: error.message });
           }
@@ -38,7 +42,7 @@ module.exports = {
                while (await helper.checkExistedID(id)) {
                     id = generateUserID()
                }
-               const photo = req.files.photo;
+               const photo = req.files;
                photo.mv(`public/images/profile/${photo.name}`, async (err) => {
                     if (err) {
                          return res.status(500).json({
@@ -75,7 +79,8 @@ module.exports = {
                if (del) {
                     res.status(200).json({
                          status_code: 200,
-                         message: `Success deleted user with ID : ${id}`
+                         message: `Success deleted user with ID : ${id}`,
+                         deleted_record: del
                     })
                } else if (!del) {
                     res.status(400).json({

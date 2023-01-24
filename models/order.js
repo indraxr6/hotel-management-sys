@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   order.init({
-    order_number: DataTypes.INTEGER,
+    order_number: DataTypes.STRING,
     order_name: DataTypes.STRING,
     order_email: DataTypes.STRING,
     order_date: DataTypes.DATE,

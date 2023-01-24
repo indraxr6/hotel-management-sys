@@ -1,21 +1,34 @@
 const express = require('express')
 const fileupload = require('express-fileupload')
 const controller = require('./user.controller')
-const path = require('path')
 const router = express.Router()
 const { verifyRole } = require('../../middleware/verifyRole')
 const { checkToken } = require('../../middleware/checkToken')
 
+const fileUpload = require('../../middleware/fileUpload')
+
+
+router.post('/register', fileUpload.single('photo'), controller.register)
+
+
+
 router.get('/', controller.getAll)
 router.get('/:id', controller.getUserById)
-router.post('/register', fileupload({createParentPath : true}), controller.register)
-router.delete('/delete/:id', checkToken, controller.deleteUser)
-router.put('/edit/:id',fileupload({createParentPath : true}), controller.editUser)
+// router.post('/register', fileupload({createParentPath : true}), controller.register)
+router.put('/edit/:id', fileupload({createParentPath : true}), controller.editUser)
+router.delete('/delete/:id', checkToken, verifyRole, controller.deleteUser)
 
-router.get('images/:filename', (req, res) => {
-     const file = path.join(__dirname, '..', 'public', 'images', 'profile', req.params.filename)
-     res.sendFile(file)
-})
+
+
+
+
+// const path = require('path')
+
+// router.post('/register', fileupload({createParentPath : true}), controller.register)
+// router.get('images/:filename', (req, res) => {
+//      const file = path.join(__dirname, '..', 'public', 'images', 'profile', req.params.filename)
+//      res.sendFile(file)
+// })
 
 module.exports = router
 

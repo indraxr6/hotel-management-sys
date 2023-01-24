@@ -5,12 +5,13 @@ module.exports = {
     await queryInterface.createTable('orders', {
       id: {
         allowNull: false,
-        autoIncrement: true,
+        autoIncrement: false,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       order_number: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING,
+        unique: true
       },
       order_name: {
         type: Sequelize.STRING

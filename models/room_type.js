@@ -14,10 +14,10 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   room_type.init({
-    id_order: DataTypes.INTEGER,
-    id_room: DataTypes.INTEGER,
-    access_date: DataTypes.DATE,
-    price: DataTypes.INTEGER
+    room_type_name: DataTypes.STRING,
+    price: DataTypes.INTEGER,
+    description: DataTypes.TEXT,
+    photo: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'room_type',
