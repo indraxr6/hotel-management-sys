@@ -1,23 +1,192 @@
-const fs = require('fs')
-const PDFDocument = require('pdfkit')
+const fs = require("fs");
+const moment = require('moment')
+const PDFDocument = require("pdfkit");
 
-async function generateInvoice(order) {
-     const doc = new PDFDocument()
-     // Set the invoice number and date
-     doc.fontSize(18).text(`Invoice #: ${order.order_number}`, 50, 50);
-     doc.fontSize(18).text(`Date: ${order.order_date}`, 50, 80);
-     // Add the customer information
-     doc.fontSize(12).text(`Customer: ${order.guest_name}`, 50, 110);
-     doc.fontSize(12).text(`Email: ${order.order_email}`, 50, 130);
-     // Add the room type and price information
-     doc.fontSize(12).text(`Room Type: ${order.id_room_type.room_type_name}`, 50, 160);
-     doc.fontSize(12).text(`Price: ${order.price}`, 50, 180);
-     // Add the checkin and checkout information
-     doc.fontSize(12).text(`Check-in: ${order.checkin_date}`, 50, 210);
-     doc.fontSize(12).text(`Check-out: ${order.checkout_date}`, 50, 230);
+function createInvoice(invoice, invoiceDetail) {
+     let doc = new PDFDocument({ size: "A4", margin: 50 });
 
-     doc.pipe(fs.createWriteStream(`public/invoices/${order.order_number}.pdf`));
+     generateHeader(doc);
+     generateCustomerInformation(doc, invoice, invoiceDetail);
+     generateInvoiceTable(doc, invoice, invoiceDetail);
+     generateFooter(doc);
+
      doc.end();
+     doc.pipe(fs.createWriteStream(`public/invoices/${invoice.order_number}.pdf`));
 }
 
-module.exports = { generateInvoice }
+function generateHeader(doc) {
+     doc
+          .image("public/images/logo/slanda-logo-notext.png", 45, 40, { width: 55 })
+          .fillColor("#444444")
+          .fontSize(12)
+          .text("Slanda Inc.", 110, 65)
+          .fontSize(10)
+          .text("Slanda Inc.", 200, 50, { align: "right" })
+          .text("Kasembon Swag Area", 200, 65, { align: "right" })
+          .text("Malang, MLG, 69420", 200, 80, { align: "right" })
+          .moveDown();
+}
+
+function generateCustomerInformation(doc, invoice, invoiceDetail) {
+     doc
+          .fillColor("#444444")
+          .fontSize(20)
+          .text("Invoice", 50, 160);
+
+     generateHr(doc, 185);
+
+     const customerInformationTop = 200;
+
+     doc
+          .fontSize(10)
+          .text("Order Number:", 50, customerInformationTop)
+          .font("Helvetica-Bold")
+          .text(invoice.order_number, 150, customerInformationTop)
+
+          .font("Helvetica")
+          .text("Invoice Date:", 50, customerInformationTop + 15)
+          .text(moment().format('YYYY-MM-DD HH:mm:ss'), 150, customerInformationTop + 15)
+
+          .text("Balance Due:", 50, customerInformationTop + 30)
+          .text(formatCurrency(invoiceDetail.price), 150, customerInformationTop + 30)
+          .font("Helvetica")
+          .text("Order Name:", 300, customerInformationTop)
+          .font("Helvetica-Bold")
+          .text(invoice.order_name, 400, customerInformationTop)
+
+          .font("Helvetica")
+          .text("Order Email:", 300, customerInformationTop + 15)
+          .text(invoice.order_email, 400, customerInformationTop + 15)
+
+          .font("Helvetica")
+          .text("Check-in Date:", 300, customerInformationTop + 30)
+          .font("Helvetica")
+          .text(formatDate(invoice.checkin_date), 400, customerInformationTop + 30)
+
+          // .font("Helvetica-Bold")
+          // .text(invoice.order_name, 300, customerInformationTop)
+          // .font("Helvetica")
+          // .text(invoice.order_email, 300, customerInformationTop + 15)
+          .moveDown();
+
+     generateHr(doc, 252);
+}
+
+function generateInvoiceTable(doc, invoice, invoiceDetail) {
+     let i;
+     const invoiceTableTop = 330;
+
+     doc.font("Helvetica-Bold");
+     generateTableRow(
+          doc,
+          invoiceTableTop,
+          "Item",
+          "Description",
+          "Unit Cost",
+          "Quantity",
+          "Line Total"
+     );
+     generateHr(doc, invoiceTableTop + 20);
+     doc.font("Helvetica");
+
+     for (i = 0; i < invoice.room_id; i++) {
+          const invoices = invoice[i];
+          const position = invoiceTableTop + (i + 1) * 30;
+          generateTableRow(
+               // doc,
+               // position,
+               // item.item,
+               // item.description,
+               // formatCurrency(item.amount / item.quantity),
+               // item.quantity,
+               // formatCurrency(item.amount)
+               doc,
+               position,
+               "A" + invoice.id_room_type,
+               invoices.id.description,
+               invoiceDetail.id.price,
+               invoices.id.room_count,
+               invoiceDetail.id.price
+          );
+
+          generateHr(doc, position + 20);
+     }
+
+     const subtotalPosition = invoiceTableTop + (i + 1) * 30;
+     generateTableRow(
+          doc,
+          subtotalPosition,
+          "",
+          "",
+          "Subtotal",
+          "",
+          formatCurrency(invoiceDetail.price)
+     );
+
+     const paidToDatePosition = subtotalPosition + 20;
+     doc.font("Helvetica-Bold");
+     generateTableRow(
+          doc,
+          paidToDatePosition,
+          "",
+          "",
+          "Paid To Date",
+          "",
+          formatCurrency(invoiceDetail.price)
+     );
+}
+
+function generateFooter(doc) {
+     doc
+          .fontSize(10)
+          .text(
+               "Please show this payment receipt to the receptionist when you arrive according to Check-in date. Thank you for your business.",
+               50,
+               780,
+               { align: "center", width: 500 }
+          );
+}
+
+function generateTableRow(
+     doc,
+     y,
+     item,
+     description,
+     unitCost,
+     quantity,
+     lineTotal
+) {
+     doc
+          .fontSize(10)
+          .text(item, 50, y)
+          .text(description, 150, y)
+          .text(unitCost, 280, y, { width: 90, align: "right" })
+          .text(quantity, 370, y, { width: 90, align: "right" })
+          .text(lineTotal, 0, y, { align: "right" });
+}
+
+function generateHr(doc, y) {
+     doc
+          .strokeColor("#aaaaaa")
+          .lineWidth(1)
+          .moveTo(50, y)
+          .lineTo(550, y)
+          .stroke();
+}
+
+function formatCurrency(cents) {
+     return "$" + cents;
+}
+
+function formatDate(date) {
+     const day = date.getDate();
+     let month = date.getMonth() + 1;
+     month < 10 ? month = `0${month}` : month
+     const year = date.getFullYear();
+
+     return year + "/" + month + "/" + day;
+}
+
+module.exports = {
+     createInvoice
+};

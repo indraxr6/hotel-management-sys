@@ -10,16 +10,16 @@ router.post('/add-transaction', async (req, res) => {
      try {
           const orderData = req.body
           const selectedRoomTypeId = req.body.id_room_type
-          const selectedRoomId = req.body.room_id
-          const newOrder = await controller.addTransaction(orderData, selectedRoomId, selectedRoomTypeId)
+          const selectedRoomIds = req.body.id_room
+          const roomCount = selectedRoomIds.length
+          const newOrder = await controller.addTransaction(orderData, selectedRoomTypeId, selectedRoomIds, roomCount)
           res.status(200).json({
                message: "Success create order",
                order_data: newOrder
           })
      } catch (error) {
           res.status(500).json({
-               message: "Error create order",
-               error : error
+               message: error.message,
           })
           console.log(error);
      }

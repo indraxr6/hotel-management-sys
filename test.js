@@ -1,5 +1,4 @@
-const moment = require('moment')
+let roomIds = [1, 2, 3, 4]
+let jsonRoomIds = JSON.stringify(roomIds)
 
-const a = moment().format('YYYY-MM-DD HH:mm:ss');  
-
-console.log(a);
+console.log(jsonRoomIds);
