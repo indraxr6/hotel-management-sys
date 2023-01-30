@@ -3,8 +3,11 @@ const router = express.Router()
 const controller = require('./order.controller')
 const app = express()
 
-router.get('/')
-// router.post('/add-transaction', controller.addTransaction)
+router.get('/', controller.getAll)
+     .get('/:sort', controller.getAll)
+     .get('/:start_date/:end_date', controller.getAll)
+     .get('/:sort/:order', controller.getAll)
+
 
 router.post('/add-transaction', async (req, res) => {
      try {

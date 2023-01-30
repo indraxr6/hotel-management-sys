@@ -22,7 +22,7 @@ module.exports = {
                const findType = await room_type.findByPk(req.params.id)
                res.status(200).json({
                     status_code: 200,
-                    data: findType
+                    data: findType,
                })
                if (!findType) {
                     res.status(404).json({

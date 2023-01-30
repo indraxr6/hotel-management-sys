@@ -2,16 +2,16 @@ const fs = require("fs");
 const moment = require('moment')
 const PDFDocument = require("pdfkit");
 
-function createInvoice(invoice, invoiceDetail) {
+function createInvoice(invoice, invoiceDetail, typeName, diffDay) {
      let doc = new PDFDocument({ size: "A4", margin: 50 });
 
      generateHeader(doc);
      generateCustomerInformation(doc, invoice, invoiceDetail);
-     generateInvoiceTable(doc, invoice, invoiceDetail);
+     generateInvoiceTable(doc, invoice, invoiceDetail, typeName, diffDay);
      generateFooter(doc);
 
      doc.end();
-     doc.pipe(fs.createWriteStream(`public/invoices/${invoice.order_number}.pdf`));
+     doc.pipe(fs.createWriteStream('public/invoices/${invoice.order_number}.pdf'));
 }
 
 function generateHeader(doc) {
@@ -72,7 +72,7 @@ function generateCustomerInformation(doc, invoice, invoiceDetail) {
      generateHr(doc, 252);
 }
 
-function generateInvoiceTable(doc, invoice, invoiceDetail) {
+function generateInvoiceTable(doc, invoice, invoiceDetail, typeName, diffDay) {
      let i;
      const invoiceTableTop = 330;
 
@@ -83,32 +83,23 @@ function generateInvoiceTable(doc, invoice, invoiceDetail) {
           "Item",
           "Description",
           "Unit Cost",
-          "Quantity",
+          "Duration (day)",
           "Line Total"
      );
      generateHr(doc, invoiceTableTop + 20);
      doc.font("Helvetica");
 
-     for (i = 0; i < invoice.room_id; i++) {
-          const invoices = invoice[i];
+     for (i = 0; i < invoice.room_count; i++) {
           const position = invoiceTableTop + (i + 1) * 30;
           generateTableRow(
-               // doc,
-               // position,
-               // item.item,
-               // item.description,
-               // formatCurrency(item.amount / item.quantity),
-               // item.quantity,
-               // formatCurrency(item.amount)
                doc,
                position,
-               "A" + invoice.id_room_type,
-               invoices.id.description,
-               invoiceDetail.id.price,
-               invoices.id.room_count,
-               invoiceDetail.id.price
+               "TR" + invoice.id_room_type,
+               typeName,
+               "$" + invoiceDetail.price / diffDay / invoice.room_count,
+               diffDay,
+               "$" + invoiceDetail.price / diffDay / invoice.room_count * 2
           );
-
           generateHr(doc, position + 20);
      }
 
@@ -142,7 +133,7 @@ function generateFooter(doc) {
           .text(
                "Please show this payment receipt to the receptionist when you arrive according to Check-in date. Thank you for your business.",
                50,
-               780,
+               760,
                { align: "center", width: 500 }
           );
 }
