@@ -3,10 +3,13 @@ const router = express.Router()
 const controller = require('./order.controller')
 const app = express()
 
-router.get('/', controller.getAll)
-     .get('/:sort', controller.getAll)
-     .get('/:start_date/:end_date', controller.getAll)
-     .get('/:sort/:order', controller.getAll)
+router.get('/find', controller.getAll)
+router.get('/find/:sort', controller.getAll)
+router.get('/find/:start_date/:end_date', controller.getAll)
+router.get('/find/:sort/:order', controller.getAll)          
+
+router.get('/:id', controller.getById)
+router.delete('/delete/:id', controller.deleteOrder)
 
 
 router.post('/add-transaction', async (req, res) => {
@@ -18,7 +21,7 @@ router.post('/add-transaction', async (req, res) => {
           const newOrder = await controller.addTransaction(orderData, selectedRoomTypeId, selectedRoomIds, roomCount)
           res.status(200).json({
                message: "Success create order",
-               order_data: newOrder
+               order_data: newOrder,
           })
      } catch (error) {
           res.status(500).json({

@@ -11,7 +11,7 @@ function createInvoice(invoice, invoiceDetail, typeName, diffDay) {
      generateFooter(doc);
 
      doc.end();
-     doc.pipe(fs.createWriteStream('public/invoices/${invoice.order_number}.pdf'));
+     doc.pipe(fs.createWriteStream('public/invoices/${invoice.order_number}s.pdf'));
 }
 
 function generateHeader(doc) {
@@ -98,7 +98,9 @@ function generateInvoiceTable(doc, invoice, invoiceDetail, typeName, diffDay) {
                typeName,
                "$" + invoiceDetail.price / diffDay / invoice.room_count,
                diffDay,
-               "$" + invoiceDetail.price / diffDay / invoice.room_count * 2
+               "$" + (invoiceDetail.price / diffDay / invoice.room_count) * diffDay
+               
+
           );
           generateHr(doc, position + 20);
      }

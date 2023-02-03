@@ -15,9 +15,6 @@ app.use("/room", require('./common/room/room.router'))
 app.use("/room-type", require('./common/room_type/room_type.router'))
 app.use("/order", require('./common/order/order.router'))
 
-
-
-
 db.sequelize.sync().then(() => {
      app.listen(port, () => {
           console.log(`Server running in port ${port}`);
