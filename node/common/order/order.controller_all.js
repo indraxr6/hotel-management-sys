@@ -212,7 +212,42 @@ module.exports = {
                     error
                });
           }
-     }
+     },
+
+     async updateOrderStatus(req, res) {
+          const orderNumber = req.params.orderNumber;
+          const { status } = req.body;
+        
+          try {
+            const orderData = await order.findOne({ where: { order_number: orderNumber } });
+            if (!orderData) {
+              return res.status(404).json({
+                status_code: 404,
+                message: `Order with order number ${orderNumber} not found.`
+              });
+            }
+        
+            if (status === 'CHECK-IN' || status === 'CHECK-OUT') {
+              await order.update({ order_status: status }, { where: { order_number: orderNumber } });
+              return res.status(200).json({
+                status_code: 200,
+                message: `Order with order number ${orderNumber} has been successfully updated to ${status}.`,
+                orderData
+              });
+            } else {
+              return res.status(400).json({
+                status_code: 400,
+                message: "Invalid status input, status should be 'CHECK-IN' or 'CHECK-OUT'"
+              });
+            }
+          } catch (error) {
+            return res.status(500).json({
+              message: "Error updating order status",
+              error
+            });
+          }
+     }        
+
 }
 
 

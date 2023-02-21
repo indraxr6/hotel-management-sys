@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     order_status: {
       type: DataTypes.ENUM,
       allowNull: false,
-      values: ['NEW', 'CHECK-IN', 'CHECK-OUT']
+      values: ['NEW', 'CHECK-IN', 'CHECK-OUT', 'CANCEL']
     },
     id_user: DataTypes.STRING
   }, {

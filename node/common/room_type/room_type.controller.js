@@ -1,10 +1,12 @@
 const { room_type } = require('../../models')
 const helper = require('../../helpers')
+const path = require('path')
 
 module.exports = {
      async getAll(req, res) {
           try {
                const roomTypes = await room_type.findAll()
+               
                res.status(200).json({
                     status_code: 200,
                     message: "Success fetch all data",
@@ -17,12 +19,36 @@ module.exports = {
                })
           }
      },
+
+     // async getAll(req, res) {
+     //      try {
+     //           const roomTypes = await room_type.findAll()
+     //           const result = roomTypes.map(roomTypes => {
+     //                return {
+     //                     ...roomTypes.toJSON(),
+     //                     photoUrl: `http://localhost:5000/public/images/room/${roomTypes.photo}`
+     //                }
+     //           })
+     //           res.status(200).json({
+     //                status_code: 200,
+     //                message: "Success fetch all data",
+     //                data: result
+     //           })
+     //      } catch (error) {
+     //           console.log(error);
+     //           return res.send({
+     //                message: error.message
+     //           })
+     //      }
+
+     // },
      async getByID(req, res) {
           try {
                const findType = await room_type.findByPk(req.params.id)
                res.status(200).json({
                     status_code: 200,
                     data: findType,
+                    facilities: findType.facilities.split(',')
                })
                if (!findType) {
                     res.status(404).json({
