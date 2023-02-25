@@ -23,19 +23,33 @@ import format from "../helpers/dateFormat";
 
 const Dashboard = () => {
   const [order, setOrder] = useState([]);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const apiURL = import.meta.env.VITE_API_URL;
+
+  const page = 1;
+  const limit = 10;
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/order/find");
-        const data = await res.json();
-        setOrder(data.transactionData);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchData();
-  }, []);
+     async function fetchTransaction() {
+        const queryParams = new URLSearchParams({
+           page: page || 1,
+           limit: itemsPerPage || 10,
+           start_date: startDate || "",
+           end_date: endDate || "",
+        });
+        try {
+           const response = await fetch(`${apiURL}/order/find?${queryParams}`);
+           const data = await response.json();
+           setOrder(data.transactionData);
+           console.log(data.data);
+        } catch (error) {
+           console.log("Error fetching transaction data:", error);
+        }
+     }
+     fetchTransaction();
+  }, [page, limit, startDate, endDate]);
 
   return (
     <div>

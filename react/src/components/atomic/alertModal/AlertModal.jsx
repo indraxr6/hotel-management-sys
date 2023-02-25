@@ -6,15 +6,25 @@ import {
      ModalFooter,
      ModalBody,
      ModalCloseButton,
-     useDisclosure,
      Button,
 
 } from '@chakra-ui/react'
 
-function AlertModal({ isOpen, onClose, handleStatusChange, handleStatusCancel }) {
-     const handleCloseWithStatusChange = () => {
-          handleStatusChange();
-          handleStatusCancel()
+function AlertModal({ isOpen, onClose, handleStatusChange, handleStatusCancel, handleOpenAlertCancel }) {
+     const handleClickChange = () => {
+          if (handleStatusChange) {
+               handleStatusChange();
+          }
+          onClose();
+     };
+     const handleClickCancel = () => {
+          if (handleStatusCancel) {
+               handleStatusCancel();
+          }
+          onClose();
+     };
+
+     const handleClose = () => {
           onClose();
      };
      return (
@@ -33,10 +43,10 @@ function AlertModal({ isOpen, onClose, handleStatusChange, handleStatusCancel })
                               Are you sure you want to change the status of this order?
                          </ModalBody>
                          <ModalFooter>
-                              <Button colorScheme='blue' mr={3} onClick={handleCloseWithStatusChange}>
+                              <Button colorScheme='blue' mr={3} onClick={handleClickChange}>
                                    Confirm
                               </Button>
-                              <Button variant='ghost' onClick={onClose}>Cancel</Button>
+                              <Button variant='ghost' onClick={handleClose}>Abort</Button>
                          </ModalFooter>
                     </ModalContent>
                </Modal>
@@ -44,4 +54,3 @@ function AlertModal({ isOpen, onClose, handleStatusChange, handleStatusCancel })
      )
 }
 export default AlertModal
-

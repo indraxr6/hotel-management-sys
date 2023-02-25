@@ -6,27 +6,49 @@ import {
      Th,
      Tbody,
      Thead,
-     Td, Badge, TableCaption, Breadcrumb, Box, BreadcrumbItem, BreadcrumbLink, Flex, Avatar, ButtonGroup, FormControl, FormLabel, Select, Input, InputRightAddon, InputGroup
+     Td, Badge, TableCaption, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Flex, Avatar, ButtonGroup, FormControl, FormLabel, Select, Input, InputRightAddon, InputGroup
 } from '@chakra-ui/react'
-import { AiOutlineRight, AiOutlineSearch } from 'react-icons/ai'
-
+import { AiOutlineRight } from 'react-icons/ai'
+import { debounce } from 'lodash'
 
 const Users = () => {
      const [userData, setUserData] = useState([]);
      const [searchQuery, setSearchQuery] = useState('');
+     const [filteredData, setFilteredData] = useState([]);
+     const [searchTerm, setSearchTerm] = useState([]);
      const apiURL = import.meta.env.VITE_API_URL
 
-     const filteredUserData = userData.filter((tb) =>
-          tb.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          tb.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          tb.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          tb.email.toLowerCase().includes(searchQuery.toLowerCase())
-     );
+
+     // const filteredUserData = userData.filter((tb) =>
+     //      tb.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     //      tb.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     //      tb.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+     //      tb.email.toLowerCase().includes(searchQuery.toLowerCase()) 
+     // );
+
+     const handleSearchTerm = debounce((searchQuery) => {
+          const filterData = userData.filter((tb) =>
+               tb.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               tb.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               tb.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
+               tb.email.toLowerCase().includes(searchQuery.toLowerCase())
+          )
+          setFilteredData(filterData)
+
+     }, 500);
+
+     const handleSearchTermChange = (event) => {
+          const term = event.target.value;
+          setSearchQuery(term)
+          setSearchTerm(term);
+          handleSearchTerm(term);
+     };
+
 
      useEffect(() => {
           async function fetchRoomTypes() {
                try {
-                    const response = await fetch(`${apiURL}/user`);
+                    const response = await fetch('http://localhost:5000/user');
                     const data = await response.json();
                     setUserData(data.data);
                } catch (error) {
@@ -36,6 +58,7 @@ const Users = () => {
 
           fetchRoomTypes();
      }, []);
+
 
      return (
           <div>
@@ -70,25 +93,13 @@ const Users = () => {
 
                     <TableContainer p={"6"}>
                          <FormLabel>Search</FormLabel>
-                         <Box display="flex" alignItems="center" mb={14}>
-                              <FormControl >
-                                   <InputGroup>
-                                        <Input placeholder='Search here' value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} type='text' width={'40%'} />
-                                        <InputRightAddon children={<AiOutlineSearch />} />
-                                   </InputGroup>
-
-                              </FormControl>
-                              <Button
-                                   variant={"solid"}
-                                   colorScheme={"green"}
-                                   size="md"
-                                   fontSize={"sm"}
-                                   mr={6}
-                              >
-                                   Add User
-                              </Button>
-                         </Box>
-
+                         <FormControl mb={12}>
+                              <InputGroup>
+                                   <Input placeholder='Search here' value={searchQuery} onChange={handleSearchTermChange} type='text' width={'40%'} />
+                                   {/* <Input placeholder='Search here' value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} type='text' width={'40%'} /> */}
+                                   <InputRightAddon children='.com' />
+                              </InputGroup>
+                         </FormControl>
 
                          <Table variant="simple" colorScheme="twitter">
                               <TableCaption>Imperial to metric conversion factors</TableCaption>
@@ -104,7 +115,8 @@ const Users = () => {
                                    </Tr>
                               </Thead>
                               <Tbody>
-                                   {filteredUserData.map((tb, index) => {
+                                   {filteredData.map((tb, index) => {
+                                   // {filteredUserData.map((tb, index) => {
                                         return (
                                              <Tr key={index}>
                                                   <Td>

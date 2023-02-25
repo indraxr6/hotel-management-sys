@@ -62,6 +62,9 @@ const CheckOrder = (props) => {
   };
 
   const handleOpenAlert = () => {
+    setIsOpen(true);  
+  };
+  const handleOpenAlertCancel = () => {
     setIsOpen(true);
   };
 
@@ -115,7 +118,7 @@ const CheckOrder = (props) => {
               ? "CHECK-OUT"
               : orderStatus == "CHECK-OUT"
               ? "CHECK-IN"
-              : "CANCEL",
+              : "CHECK-IN",
         }),
       });
       const data = await res.json();
@@ -327,8 +330,8 @@ const CheckOrder = (props) => {
                           ? "Check-Out"
                           : ""}
                       </Button>
-                      <Button colorScheme="red" flex={1} onClick={handleStatusCancel && handleOpenAlert}>
-                        Cancel
+                      <Button colorScheme="red" flex={1} onClick={handleStatusCancel && handleOpenAlertCancel}>
+                        Cancel  
                       </Button>
                     </ButtonGroup>
                   )}
@@ -343,7 +346,9 @@ const CheckOrder = (props) => {
             onClose={handleCloseAlert}
             handleStatusChange={handleStatusChange}
             handleStatusCancel={handleStatusCancel}
-          />
+            handleOpenAlertCancel={handleOpenAlertCancel}
+          >
+          </AlertModal>
         </Stack>
       </Sidebar>
     </div>

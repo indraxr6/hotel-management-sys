@@ -7,7 +7,6 @@ const Pagination = ({ currentPage, itemsPerPage, totalItems, onPageChange }) => 
      for (let i = 1; i <= totalPages; i++) {
           pageNumbers.push(i);
      }
-
      return (
           <div>
                {pageNumbers.map((pageNumber) => (

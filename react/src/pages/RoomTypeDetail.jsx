@@ -54,9 +54,6 @@ export default function RoomTypeDetail() {
                          Dashboard
                     </Text>
                </Flex>
-              
-               
-
       
                <Flex h="20" alignItems="flex-start" mx="29px" justifyContent="space-between">
                     <Text fontSize="4xl" fontFamily="monospace" fontWeight="bold">

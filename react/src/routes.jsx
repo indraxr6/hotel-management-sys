@@ -8,6 +8,7 @@ import RoomTypes from './pages/RoomTypes';
 import RoomTypeDetail from './pages/RoomTypeDetail';
 import RoomList from './pages/RoomList';
 import CheckOrder from './pages/CheckOrder';
+import AddTransaction from './pages/AddTransaction';
 // import OrderPage from './pages/OrderPage';
 
 
@@ -32,6 +33,10 @@ const routes = [
   {
     path: '/transaction',
     component: <Transaction/>
+  },
+  {
+    path: '/transaction/add',
+    component: <AddTransaction/>
   },
   {
     path: '/users',
