@@ -49,17 +49,17 @@ import {
        <Box maxW="8xl" mx={'auto'} pt={4} px={{ base: 2, sm: 12, md: 17 }}>
          <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }}>
            <StatsCard
-             title={'Users'}
+             title={'Revenue (Month)'}
              stat={'5,000'}
              icon={<BsPerson size={'3em'} />}
            />
            <StatsCard
-             title={'Servers'}
+             title={'Orders'}
              stat={'1,000'}
              icon={<FiServer size={'3em'} />}
            />
            <StatsCard
-             title={'Datacenters'}
+             title={'Users '}
              stat={'7'}
              icon={<GoLocation size={'3em'} />}
            />

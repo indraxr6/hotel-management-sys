@@ -81,7 +81,7 @@ const RoomTypes = () => {
                                    <Divider opacity={0.3} />
                                    <CardFooter>
                                         <ButtonGroup spacing="2">
-                                             <Button variant="solid" colorScheme="blue">
+                                             <Button variant="solid" colorScheme="blue" onClick={() => navigate('/transaction/add')}>
                                                   Book now
                                              </Button>
                                              <Button variant="ghost" colorScheme="blue" onClick={() => handleDetailsClick(roomType.id)}>

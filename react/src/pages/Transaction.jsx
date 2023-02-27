@@ -33,23 +33,22 @@ import {
 import { AiOutlineRight } from "react-icons/ai";
 import format from "../helpers/dateFormat";
 import { useNavigate } from "react-router";
+import Pagination from "../components/atomic/pagination/Pagination";
 
 const Transaction = () => {
    const [transaction, setTransaction] = useState([]);
    const [roomType, setRoomType] = useState([]);
-   const apiURL = import.meta.env.VITE_API_URL;
+   const [roomTypeReq, setRoomTypeReq] = useState(0);
 
    //filtering
    const [checkinDate, setCheckinDate] = useState("");
    const [checkoutDate, setCheckoutDate] = useState("");
-   const [startDate, setStartDate] = useState("");
-   const [endDate, setEndDate] = useState("");
-   // const [currentPage, setCurrentPage] = useState(1);
+   const [currentPage, setCurrentPage] = useState(1);
    const [itemsPerPage, setItemsPerPage] = useState(10);
-   // const startIndex = (currentPage - 1) * itemsPerPage;
-   // const endIndex = startIndex + itemsPerPage;
-   // const currentItems = roomList.slice(startIndex, endIndex);
-
+   const startIndex = (currentPage - 1) * itemsPerPage;
+   const endIndex = startIndex + itemsPerPage;
+   const currentItems = transaction ? transaction.slice(startIndex, endIndex) : [];
+   const apiURL = import.meta.env.VITE_API_URL;
    const navigate = useNavigate()
 
    const page = 1;
@@ -65,13 +64,26 @@ const Transaction = () => {
       setCheckoutDate(setCheckout);
    };
 
+   const handlePerPageChange = (e) => {
+      const newPerPage = parseInt(e.target.value, 10);
+      setItemsPerPage(newPerPage);
+   };
+
+   const handlePageChange = (pageNumber) => {
+      setCurrentPage(pageNumber);
+   };
+
+   const handleDetailsClick = (id) => {
+      navigate(`/transaction/${id}`)
+   };
+
    useEffect(() => {
       async function fetchTransaction() {
          const queryParams = new URLSearchParams({
             page: page || 1,
-            limit: itemsPerPage || 10,
-            start_date: startDate || "",
-            end_date: endDate || "",
+            limit: limit || 10,
+            start_date: checkinDate || "",
+            end_date: checkoutDate || "",
          });
          try {
             const [transactionRes, roomTypeRes] = await Promise.all([
@@ -82,13 +94,28 @@ const Transaction = () => {
             const roomTypes = await roomTypeRes.json();
             setTransaction(trans.transactionData);
             setRoomType(roomTypes.data);
-            console.log(trans, roomTypes);
          } catch (error) {
             console.log("Error fetching transaction data:", error);
          }
       }
       fetchTransaction();
-   }, [page, limit, startDate, endDate]);
+   }, [page, limit, checkinDate, checkoutDate]);
+
+   const filterTransaction = async () => {
+      const queryParams = new URLSearchParams({
+         page: page || 1,
+         limit: itemsPerPage || 10,
+         start_date: checkinDate || "",
+         end_date: checkoutDate || "",
+      });
+      try {
+         const transactionRes = await fetch(`${apiURL}/order/find?${queryParams}`)
+         const trans = await transactionRes.json();
+         setTransaction(trans.transactionData);
+      } catch (error) {
+         console.log("Error fetching transaction data:", error);
+      }
+   }
 
    return (
       <div>
@@ -107,7 +134,7 @@ const Transaction = () => {
 
             <Stats />
 
-            <Box display="flex" alignItems="center" mb={14}>
+            <Box display="flex" alignItems="center" mb={0}>
                <Breadcrumb spacing="10px" margin={6} separator={<AiOutlineRight />}>
                   <BreadcrumbItem>
                      <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
@@ -183,7 +210,7 @@ const Transaction = () => {
                                  <option value={""}>--Select Room Type--</option>
                                  {roomType.map((option, index) => {
                                     return (
-                                       <option key={index} value={option.room_type_name}>
+                                       <option key={index} value={option.id}>
                                           {option.room_type_name}
                                        </option>
                                     );
@@ -195,7 +222,7 @@ const Transaction = () => {
                               <Select
                                  id="items-per-page"
                                  value={itemsPerPage}
-                              // onChange={handlePerPageChange}
+                                 onChange={handlePerPageChange}
                               >
                                  <option value={10}>--Limit Items per-Page--</option>
                                  <option value={5}>5</option>
@@ -205,34 +232,34 @@ const Transaction = () => {
                               </Select>
                            </FormControl>
                         </Box>
-
-                        {/* <Button mb={5} onClick={handleCheckRoomAvailability}>
-                        Check Available
-                     </Button> */}
+                        <Button mb={5} onClick={filterTransaction}>
+                           Apply Filter
+                        </Button>
                      </AccordionPanel>
                   </AccordionItem>
                </Accordion>
-               <Table variant="simple" colorScheme="twitter">
-                  <TableCaption>Imperial to metric conversion factors</TableCaption>
+               <Table variant="simple" size={'sm'}>
+                  <TableCaption>{currentItems.length} data transaction</TableCaption>
                   <Thead>
                      <Tr>
                         <Th>Order Number</Th>
                         <Th>Order Name</Th>
-                        <Th>Order Date</Th>
+                        {/* <Th>Order Date</Th> */}
                         <Th>Order Email</Th>
                         <Th>Status</Th>
                         <Th>Check-In Date</Th>
+                        <Th>Check-Out Date</Th>
                         <Th>Action</Th>
                      </Tr>
                   </Thead>
                   <Tbody>
-                     {transaction.map((tb, index) => {
+                     {currentItems.map((tb, index) => {
                         return (
                            <Tr key={index}>
-                              
+
                               <Td>{tb.order_number}</Td>
                               <Td>{tb.order_name}</Td>
-                              <Td>{format.formatDateWithTime(tb.order_date)}</Td>
+                              {/* <Td>{format.formatDateWithTime(tb.order_date)}</Td> */}
                               <Td>{tb.order_email}</Td>
 
                               <Td>
@@ -253,8 +280,9 @@ const Transaction = () => {
                               </Td>
 
                               <Td>{format.formatDate(tb.checkin_date)}</Td>
+                              <Td>{format.formatDate(tb.checkout_date)}</Td>
                               <Td>
-                                 <Button variant={"outline"} size="sm">
+                                 <Button variant={"outline"} size="sm" onClick={() => handleDetailsClick(tb.order_number)}>
                                     Details
                                  </Button>
                               </Td>
@@ -263,6 +291,13 @@ const Transaction = () => {
                      })}
                   </Tbody>
                </Table>
+               <Pagination
+                  currentPage={currentPage}
+                  itemsPerPage={10}
+                  totalItems={currentItems.length}
+                  onPageChange={handlePageChange}
+                  handlePerPageChange={handlePerPageChange}
+               />
             </TableContainer>
          </Sidebar>
       </div>

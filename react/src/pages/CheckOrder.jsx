@@ -94,8 +94,8 @@ const CheckOrder = (props) => {
         setCheckoutDate(data.orderData.checkout_date);
         setOrderStatus(data.orderData.order_status);
         setRoomType(data.orderData.id_room_type);
-        setOrderTotal(data.order_summary.price);
-        setRoomNumber(data.order_summary.id_rooms);
+        setOrderTotal(data.orderSummary.price);
+        setRoomNumber(data.orderSummary.room_numbers);
         setErrMessage("");
       }
     } catch (error) {
@@ -291,7 +291,7 @@ const CheckOrder = (props) => {
                         <FormLabel>Room Type</FormLabel>
                         <Input type="number" value={roomType} readOnly />
                         <FormLabel>Room Numbers</FormLabel>
-                        <Input type="text" value={roomNumber} readOnly />
+                        <Input type="text" value={roomNumber.join(", ")} readOnly />
                       </Wrap>
                     </Flex>
                     <Wrap m={5}>

@@ -45,16 +45,16 @@ export default function RoomTypeDetail() {
      }, []);
 
      return (
-          <Sidebar>                   
-               <Container  alignItems={'flex-start'} justifyContent="flex-start">
+          <Sidebar>
+               <Container alignItems={'flex-start'} justifyContent="flex-start">
                     <BackButton />
-               </Container> 
+               </Container>
                <Flex h="5" alignItems="flex-start" mx="31px" justifyContent="space-between">
                     <Text fontSize="14px" fontFamily="monospace" fontWeight="thin">
                          Dashboard
                     </Text>
                </Flex>
-      
+
                <Flex h="20" alignItems="flex-start" mx="29px" justifyContent="space-between">
                     <Text fontSize="4xl" fontFamily="monospace" fontWeight="bold">
                          Room Type
@@ -172,7 +172,7 @@ export default function RoomTypeDetail() {
                               </Stack>
 
                               <Button
-                                   rounded={'none'}
+                                   rounded={'md'}
                                    w={'full'}
                                    mt={8}
                                    size={'lg'}
@@ -180,11 +180,12 @@ export default function RoomTypeDetail() {
                                    bg={useColorModeValue('gray.900', 'gray.50')}
                                    color={useColorModeValue('white', 'gray.900')}
                                    textTransform={'uppercase'}
+                                   onClick={() => navigate('/transaction/add')}
                                    _hover={{
                                         transform: 'translateY(2px)',
                                         boxShadow: 'lg',
                                    }}>
-                                   Add to cart
+                                   Book
                               </Button>
                          </Stack>
                     </SimpleGrid>
