@@ -7,12 +7,14 @@ import RoomTypeDetail from './RoomTypeDetail'
 import BackButton from '../components/atomic/backArrow/BackArrow'
 
 
-const RoomTypes = ({ RoomType }) => {
+const RoomTypes = () => {
      const [roomTypes, setRoomTypes] = useState([]);
      const apiURL = import.meta.env.VITE_API_URL
      const navigate = useNavigate()
 
      useEffect(() => {
+          const controller = new AbortController({});
+
           async function fetchRoomTypes() {
                try {
                     const response = await fetch(`${apiURL}/room-type`);
@@ -29,6 +31,7 @@ const RoomTypes = ({ RoomType }) => {
           navigate(`/room-types/${id}`)
      }
 
+
      return (
           <div>
                <Sidebar>
@@ -37,7 +40,6 @@ const RoomTypes = ({ RoomType }) => {
                               Dashboard
                          </Text>
                     </Flex>
-                    
 
                     <Flex h="20" alignItems="flex-start" mx="29px" justifyContent="space-between">
                          <Text fontSize="4xl" fontFamily="monospace" fontWeight="bold">
@@ -54,6 +56,7 @@ const RoomTypes = ({ RoomType }) => {
                          </BreadcrumbItem>
                     </Breadcrumb>
 
+                 
 
                     <Flex wrap='wrap' justifyContent={'center'}>
                          {roomTypes.map((roomType) => (
@@ -78,7 +81,7 @@ const RoomTypes = ({ RoomType }) => {
                                    <Divider opacity={0.3} />
                                    <CardFooter>
                                         <ButtonGroup spacing="2">
-                                             <Button variant="solid" colorScheme="blue">
+                                             <Button variant="solid" colorScheme="blue" onClick={() => navigate('/transaction/add')}>
                                                   Book now
                                              </Button>
                                              <Button variant="ghost" colorScheme="blue" onClick={() => handleDetailsClick(roomType.id)}>

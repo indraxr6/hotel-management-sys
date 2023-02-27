@@ -1,22 +1,50 @@
-const { room } = require('../../models')
-const helper = require('../../helpers')
+const { room, room_type } = require('../../models')
+const helper = require('../../helpers');
+const { Op } = require('sequelize');
+
 
 module.exports = {
      async getAll(req, res) {
           try {
-               const rooms = await room.findAll()
+               const limit = parseInt(req.query.limit) || 20;
+               const offset = req.query.page ? (req.query.page - 1) * limit : 0;
+               const filter = req.query.filter || "";
+
+               const { count, rows } = await room.findAndCountAll({
+                    include: {
+                         model: room_type,
+                         as: "room_types",
+                         attributes: ["room_type_name"],
+                    },
+                    offset,
+                    limit,
+               });
+
+               const roomData = rows.map((room) => {
+                    const { room_types, ...rest } = room.toJSON();
+                    return {
+                         ...rest,
+                         room_type_name: room_types.room_type_name,
+                    };
+               });
+
                res.status(200).json({
                     status_code: 200,
-                    message: "Success fetch all data",
-                    data: rooms
-               })
+                    message: `Success fetch all data with ${limit} data limit`,
+                    data: roomData,
+                    total_data: count,
+                    current_page: parseInt(req.query.page) || 1,
+                    total_pages: Math.ceil(count / limit),
+               });
           } catch (err) {
                return res.status(404).json({
                     status_code: 404,
-                    message: err.message
-               })
+                    message: err.message,
+               });
           }
      },
+
+
      async getByID(req, res) {
           try {
                const findRoom = await room.findByPk(req.params.id)
@@ -51,7 +79,7 @@ module.exports = {
                });
                if (!room_number || !id_room_type) {
                     res.status(401).json({
-                         message : "fill all required fields"
+                         message: "fill all required fields"
                     })
                }
           } catch (err) {
@@ -92,7 +120,7 @@ module.exports = {
                     })
                }
                const updateRoom = await room.update({
-                    room_number, 
+                    room_number,
                     id_room_type
                }, {
                     where: { id: id }

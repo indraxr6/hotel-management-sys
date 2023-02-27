@@ -16,7 +16,8 @@ module.exports = (sequelize, DataTypes) => {
 
       })
       this.belongsTo(models.room, {
-        foreignKey: "id_room"
+        foreignKey: "id_room",
+        as: "rooms"
       })
     }
   }

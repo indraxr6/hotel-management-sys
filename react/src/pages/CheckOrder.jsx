@@ -62,6 +62,9 @@ const CheckOrder = (props) => {
   };
 
   const handleOpenAlert = () => {
+    setIsOpen(true);  
+  };
+  const handleOpenAlertCancel = () => {
     setIsOpen(true);
   };
 
@@ -91,8 +94,8 @@ const CheckOrder = (props) => {
         setCheckoutDate(data.orderData.checkout_date);
         setOrderStatus(data.orderData.order_status);
         setRoomType(data.orderData.id_room_type);
-        setOrderTotal(data.order_summary.price);
-        setRoomNumber(data.order_summary.id_rooms);
+        setOrderTotal(data.orderSummary.price);
+        setRoomNumber(data.orderSummary.room_numbers);
         setErrMessage("");
       }
     } catch (error) {
@@ -115,7 +118,7 @@ const CheckOrder = (props) => {
               ? "CHECK-OUT"
               : orderStatus == "CHECK-OUT"
               ? "CHECK-IN"
-              : "CANCEL",
+              : "CHECK-IN",
         }),
       });
       const data = await res.json();
@@ -288,7 +291,7 @@ const CheckOrder = (props) => {
                         <FormLabel>Room Type</FormLabel>
                         <Input type="number" value={roomType} readOnly />
                         <FormLabel>Room Numbers</FormLabel>
-                        <Input type="text" value={roomNumber} readOnly />
+                        <Input type="text" value={roomNumber.join(", ")} readOnly />
                       </Wrap>
                     </Flex>
                     <Wrap m={5}>
@@ -327,8 +330,8 @@ const CheckOrder = (props) => {
                           ? "Check-Out"
                           : ""}
                       </Button>
-                      <Button colorScheme="red" flex={1} onClick={handleStatusCancel && handleOpenAlert}>
-                        Cancel
+                      <Button colorScheme="red" flex={1} onClick={handleStatusCancel && handleOpenAlertCancel}>
+                        Cancel  
                       </Button>
                     </ButtonGroup>
                   )}
@@ -343,7 +346,9 @@ const CheckOrder = (props) => {
             onClose={handleCloseAlert}
             handleStatusChange={handleStatusChange}
             handleStatusCancel={handleStatusCancel}
-          />
+            handleOpenAlertCancel={handleOpenAlertCancel}
+          >
+          </AlertModal>
         </Stack>
       </Sidebar>
     </div>

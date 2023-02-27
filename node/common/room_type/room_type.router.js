@@ -12,4 +12,9 @@ router.post('/add', fileupload({createParentPath : true}), controller.addRoomTyp
 router.delete('/delete/:id', controller.deleteRoomType)
 router.put('/edit/:id', fileupload({createParentPath : true}), controller.editRoomType)
 
+router.get('images/:filename', (req, res) => {
+     const file = path.join(__dirname, '..', 'public', 'images', "room", req.params.filename)
+     res.sendFile(file)
+})
+
 module.exports = router

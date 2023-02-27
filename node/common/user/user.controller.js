@@ -42,7 +42,7 @@ module.exports = {
                while (await helper.checkExistedID(id)) {
                     id = generateUserID()
                }
-               const photo = req.files;
+               const photo = req.files.photo;
                photo.mv(`public/images/profile/${photo.name}`, async (err) => {
                     if (err) {
                          return res.status(500).json({

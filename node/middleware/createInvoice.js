@@ -11,7 +11,7 @@ function createInvoice(invoice, invoiceDetail, typeName, diffDay) {
      generateFooter(doc);
 
      doc.end();
-     doc.pipe(fs.createWriteStream('public/invoices/${invoice.order_number}s.pdf'));
+     doc.pipe(fs.createWriteStream(`public/invoices/${invoice.order_number}.pdf`));
 }
 
 function generateHeader(doc) {
@@ -48,7 +48,7 @@ function generateCustomerInformation(doc, invoice, invoiceDetail) {
           .text(moment().format('YYYY-MM-DD HH:mm:ss'), 150, customerInformationTop + 15)
 
           .text("Balance Due:", 50, customerInformationTop + 30)
-          .text(formatCurrency(invoiceDetail.price), 150, customerInformationTop + 30)
+          .text(formatCurrency(invoiceDetail), 150, customerInformationTop + 30)
           .font("Helvetica")
           .text("Order Name:", 300, customerInformationTop)
           .font("Helvetica-Bold")
@@ -96,11 +96,9 @@ function generateInvoiceTable(doc, invoice, invoiceDetail, typeName, diffDay) {
                position,
                "TR" + invoice.id_room_type,
                typeName,
-               "$" + invoiceDetail.price / diffDay / invoice.room_count,
+               "$" + invoiceDetail / diffDay / invoice.room_count,
                diffDay,
-               "$" + (invoiceDetail.price / diffDay / invoice.room_count) * diffDay
-               
-
+               "$" + (invoiceDetail / diffDay / invoice.room_count) * diffDay  
           );
           generateHr(doc, position + 20);
      }
@@ -113,7 +111,7 @@ function generateInvoiceTable(doc, invoice, invoiceDetail, typeName, diffDay) {
           "",
           "Subtotal",
           "",
-          formatCurrency(invoiceDetail.price)
+          formatCurrency(invoiceDetail)
      );
 
      const paidToDatePosition = subtotalPosition + 20;
@@ -125,13 +123,14 @@ function generateInvoiceTable(doc, invoice, invoiceDetail, typeName, diffDay) {
           "",
           "Paid To Date",
           "",
-          formatCurrency(invoiceDetail.price)
+          formatCurrency(invoiceDetail)
      );
 }
 
 function generateFooter(doc) {
      doc
           .fontSize(10)
+          .font("Helvetica")
           .text(
                "Please show this payment receipt to the receptionist when you arrive according to Check-in date. Thank you for your business.",
                50,

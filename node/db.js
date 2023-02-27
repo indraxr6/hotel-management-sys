@@ -10,3 +10,4 @@ sequelize.authenticate().then(() => {
 }).catch((error) => {
      console.log("DB Connection Failed \n", error );
 })
+const a = require('dotenv')
