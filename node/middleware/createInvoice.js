@@ -11,7 +11,7 @@ function createInvoice(invoice, invoiceDetail, typeName, diffDay) {
      generateFooter(doc);
 
      doc.end();
-     doc.pipe(fs.createWriteStream('public/invoices/${invoice.order_number}s.pdf'));
+     doc.pipe(fs.createWriteStream(`public/invoices/${invoice.order_number}.pdf`));
 }
 
 function generateHeader(doc) {

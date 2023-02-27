@@ -1,7 +1,7 @@
 const express = require('express')
 const db = require('./models')
 const path = require('path')
-const multer = require('multer')
+// const multer = require('multer')
 
 require('./db')
 
@@ -21,25 +21,24 @@ app.use((req, res, next) => {
      next()
 })
 
-const storage = multer.diskStorage({
-     destination: function (req, file, cb) {
-          cb(null, '../public/images')
-     },
-     filename: function (req, file, cb) {
-          cb(null, file.originalname)
-     }
-})
+// const storage = multer.diskStorage({
+//      destination: function (req, file, cb) {
+//           cb(null, '../public/images')
+//      },
+//      filename: function (req, file, cb) {
+//           cb(null, file.originalname)
+//      }
+// })
 
-const fileFilter = (req, file, cb) => {
-     if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg' ) {
-          cb(null, true)
-     } else {
-          cb(null, false)
-     }
-}
+// const fileFilter = (req, file, cb) => {
+//      if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpg' ) {
+//           cb(null, true)
+//      } else {
+//           cb(null, false)
+//      }
+// }
 
-
-app.use(multer({storage: storage, fileFilter: fileFilter}).single('image'))
+// app.use(multer({storage: storage, fileFilter: fileFilter}).single('image'))
 
 app.use("/", require('./routes/home'))
 app.use("/auth", require('./auth/router.auth'))

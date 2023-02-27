@@ -16,6 +16,11 @@ router.delete('/delete/:id', controller.deleteOrder)
 router.put('/change-status/:orderNumber', controller.updateOrderStatus)
 router.put('/edit/:id', controller.updateOrderData)
 
+router.get('invoice/:filename', (req, res) => {
+     const file = path.join(__dirname, '..', 'public', 'invoices', req.params.filename)
+     res.sendFile(file)
+})
+
 
 router.post('/add-transaction', async (req, res) => {
      try {
@@ -28,6 +33,7 @@ router.post('/add-transaction', async (req, res) => {
                throw new Error("Exceeded 10 room count limit.")
           }
           res.status(200).json({
+               status_code: 200,
                message: "Success create order",
                order_data: newOrder,
           })
