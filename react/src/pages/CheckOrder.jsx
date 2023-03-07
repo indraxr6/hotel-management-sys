@@ -17,10 +17,12 @@ import {
   Stack,
   Wrap,
 } from "@chakra-ui/react";
+import Head from "../helpers/headTitle";
 import { AiOutlineRight } from "react-icons/ai";
 import AlertStatus from "../components/atomic/alertStatus/AlertStatus";
 import format from "../helpers/dateFormat";
 import AlertModal from "../components/atomic/alertModal/AlertModal";
+import withRoleGuard from "../helpers/roleGuard";
 
 const CheckOrder = (props) => {
   const [orderNumber, setOrderNumber] = useState("");
@@ -30,13 +32,14 @@ const CheckOrder = (props) => {
   const [checkinDate, setCheckinDate] = useState("");
   const [checkoutDate, setCheckoutDate] = useState("");
   const [guestName, setGuestName] = useState("");
-  const [roomType, setRoomType] = useState(0);
+  const [roomType, setRoomType] = useState("");
   const [orderStatus, setOrderStatus] = useState("");
   const [orderTotal, setOrderTotal] = useState(0);
   const [roomNumber, setRoomNumber] = useState([]);
   const [errMessage, setErrMessage] = useState("");
   const [message, setMessage] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const [isOpenCancel, setIsOpenCancel] = useState(false);
   const apiURL = import.meta.env.VITE_API_URL;
 
   const handleChange = (e) => {
@@ -62,29 +65,33 @@ const CheckOrder = (props) => {
   };
 
   const handleOpenAlert = () => {
-    setIsOpen(true);  
+    setIsOpen(true);
   };
   const handleOpenAlertCancel = () => {
-    setIsOpen(true);
+    setIsOpenCancel(true);
   };
 
   const handleCloseAlert = () => {
     setIsOpen(false);
   };
 
+  const handleCloseAlertCancel = () => {
+    setIsOpenCancel(false);
+  };
+
+
   const handleSubmit = async () => {
     try {
-      const res = await fetch(
-        `${apiURL}/order/find-ordernumber/${orderNumber}`
-      );
+      const res = await fetch(`${apiURL}/order/find-ordernumber/${orderNumber}`);
       const data = await res.json();
-      console.log(data);
 
       if (res.status == 404) {
         setErrMessage(data.message);
         setMessage("");
         setGuestName("");
       } else if (data) {
+        const roomTypeName = await fetch(`${apiURL}/room-type/${data.orderData.id_room_type}`);
+        const roomName = await roomTypeName.json();
         setMessage(data.message);
         setOrderName(data.orderData.order_name);
         setOrderEmail(data.orderData.order_email);
@@ -93,7 +100,7 @@ const CheckOrder = (props) => {
         setCheckinDate(data.orderData.checkin_date);
         setCheckoutDate(data.orderData.checkout_date);
         setOrderStatus(data.orderData.order_status);
-        setRoomType(data.orderData.id_room_type);
+        setRoomType(roomName.data.room_type_name)
         setOrderTotal(data.orderSummary.price);
         setRoomNumber(data.orderSummary.room_numbers);
         setErrMessage("");
@@ -115,10 +122,10 @@ const CheckOrder = (props) => {
             orderStatus == "NEW"
               ? "CHECK-IN"
               : orderStatus == "CHECK-IN"
-              ? "CHECK-OUT"
-              : orderStatus == "CHECK-OUT"
-              ? "CHECK-IN"
-              : "CHECK-IN",
+                ? "CHECK-OUT"
+                : orderStatus == "CHECK-OUT"
+                  ? "CHECK-IN"
+                  : "CHECK-IN",
         }),
       });
       const data = await res.json();
@@ -139,35 +146,36 @@ const CheckOrder = (props) => {
   };
 
   const handleStatusCancel = async () => {
-     try {
-       const res = await fetch(`${apiURL}/order/change-status/${orderNumber}`, {
-         method: "PUT",
-         headers: {
-           "Content-Type": "application/json",
-         },
-         body: JSON.stringify({
-           status: 'CANCEL'
-         }),
-       });
-       const data = await res.json();
-       console.log(data);
- 
-       if (res.status == 404) {
-         setErrMessage(data.message);
-         setMessage("");
-       } else if (data) {
-         setMessage(data.message);
-         setErrMessage("");
-         setOrderStatus(data.orderData.order_status);
-         setGuestName("");
-       }
-     } catch (error) {
-       console.log(error);
-     }
-   };
+    try {
+      const res = await fetch(`${apiURL}/order/change-status/${orderNumber}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          status: 'CANCEL'
+        }),
+      });
+      const data = await res.json();
+      console.log(data);
+
+      if (res.status == 404) {
+        setErrMessage(data.message);
+        setMessage("");
+      } else if (data) {
+        setMessage(data.message);
+        setErrMessage("");
+        setOrderStatus(data.orderData.order_status);
+        setGuestName("");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div>
+      <Head title='Check Order' description={''}/>
       <Sidebar>
         <Flex
           h="5"
@@ -289,7 +297,7 @@ const CheckOrder = (props) => {
                         <FormLabel>Order Status</FormLabel>
                         <Input type="text" value={orderStatus} readOnly />
                         <FormLabel>Room Type</FormLabel>
-                        <Input type="number" value={roomType} readOnly />
+                        <Input type="text" value={roomType} readOnly />
                         <FormLabel>Room Numbers</FormLabel>
                         <Input type="text" value={roomNumber.join(", ")} readOnly />
                       </Wrap>
@@ -319,19 +327,19 @@ const CheckOrder = (props) => {
                           orderStatus == "NEW"
                             ? "green"
                             : orderStatus == "CHECK-IN"
-                            ? "blue"
-                            : ""
+                              ? "blue"
+                              : ""
                         }
                         onClick={handleStatusChange && handleOpenAlert}
                       >
                         {orderStatus == "NEW"
                           ? "Check-In"
                           : orderStatus == "CHECK-IN"
-                          ? "Check-Out"
-                          : ""}
+                            ? "Check-Out"
+                            : ""}
                       </Button>
                       <Button colorScheme="red" flex={1} onClick={handleStatusCancel && handleOpenAlertCancel}>
-                        Cancel  
+                        Cancel
                       </Button>
                     </ButtonGroup>
                   )}
@@ -345,14 +353,26 @@ const CheckOrder = (props) => {
             isOpen={isOpen}
             onClose={handleCloseAlert}
             handleStatusChange={handleStatusChange}
+            handleOpenAlert={handleOpenAlert}
+            title={'Change Status'}
+            message={orderStatus == "NEW" ? "Are you sure want to check-in this order?" : "Are you sure want to check-out this order?"}
+          />
+          
+          <AlertModal
+            isOpen={isOpenCancel}
+            onClose={handleCloseAlert}
             handleStatusCancel={handleStatusCancel}
             handleOpenAlertCancel={handleOpenAlertCancel}
-          >
-          </AlertModal>
+            handleCloseAlertCancel={handleCloseAlertCancel}
+            title={"Cancel Order"}
+            message={"Are you sure want to cancel this order?"}
+          />
+          
         </Stack>
       </Sidebar>
     </div>
   );
 };
 
-export default CheckOrder;
+export default withRoleGuard(CheckOrder, ["ADMIN", "RECEPTIONIST"]);
+

@@ -24,8 +24,11 @@ import {
   Input,
   InputRightAddon,
   InputGroup,
+  Tooltip,
 } from "@chakra-ui/react";
-import { AiOutlineRight, AiOutlineSearch } from "react-icons/ai";
+import { AiOutlineDelete, AiOutlineEdit, AiOutlineRight, AiOutlineSearch } from "react-icons/ai";
+import Head from "../helpers/headTitle";
+import withRoleGuard from "../helpers/roleGuard";
 
 const Users = () => {
   const [userData, setUserData] = useState([]);
@@ -56,6 +59,7 @@ const Users = () => {
 
   return (
     <div>
+      <Head title='Users List' description={''} />
       <Sidebar>
         <Flex
           h="5"
@@ -129,7 +133,7 @@ const Users = () => {
                 <Th>Email</Th>
                 {/* <Th>Password</Th> */}
                 <Th>Role</Th>
-                <Th>Action</Th>
+                {localStorage.getItem('role') === 'ADMIN' ? <Th>Action</Th> : null}
               </Tr>
             </Thead>
             <Tbody>
@@ -168,26 +172,34 @@ const Users = () => {
                       })()}
                     </Td>
 
-                    <Td>
-                      <ButtonGroup spacing={4} width={"100%"}>
-                        <Button
-                          variant={"solid"}
-                          colorScheme={"blue"}
-                          flex={1}
-                          size="sm"
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          variant={"solid"}
-                          colorScheme={"red"}
-                          flex={1}
-                          size="sm"
-                        >
-                          Delete
-                        </Button>
-                      </ButtonGroup>
-                    </Td>
+                    {localStorage.getItem('role') === 'ADMIN' ?
+                      <Td>
+                        <ButtonGroup spacing={3} width={"70%"}>
+                          <Tooltip hasArrow label={'Edit'}>
+                            <Button
+                              variant={"solid"}
+                              colorScheme={"blue"}
+                              flex={1}
+                              size="sm"
+                            >
+                              <AiOutlineEdit />
+                            </Button>
+                          </Tooltip>
+                          <Tooltip hasArrow label={'Delete'}>
+                            <Button
+                              variant={"solid"}
+                              colorScheme={"red"}
+                              flex={1}
+                              size="sm"
+                            >
+                              <AiOutlineDelete />
+                            </Button>
+                          </Tooltip>
+                        </ButtonGroup>
+                      </Td> 
+                      : null
+                    }
+
                   </Tr>
                 );
               })}
@@ -199,4 +211,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default withRoleGuard(Users, ["ADMIN", "RECEPTIONIST"]);;

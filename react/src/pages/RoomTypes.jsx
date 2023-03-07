@@ -5,6 +5,8 @@ import { AiOutlineRight } from 'react-icons/ai'
 import { useNavigate } from "react-router-dom"
 import RoomTypeDetail from './RoomTypeDetail'
 import BackButton from '../components/atomic/backArrow/BackArrow'
+import Head from '../helpers/headTitle';
+import withRoleGuard from '../helpers/roleGuard'
 
 
 const RoomTypes = () => {
@@ -34,6 +36,7 @@ const RoomTypes = () => {
 
      return (
           <div>
+               <Head title='Room Types' description={''} />
                <Sidebar>
                     <Flex h="5" alignItems="flex-start" mx="31px" justifyContent="space-between">
                          <Text fontSize="14px" fontFamily="monospace" fontWeight="thin">
@@ -56,7 +59,7 @@ const RoomTypes = () => {
                          </BreadcrumbItem>
                     </Breadcrumb>
 
-                 
+
 
                     <Flex wrap='wrap' justifyContent={'center'}>
                          {roomTypes.map((roomType) => (
@@ -97,4 +100,4 @@ const RoomTypes = () => {
      )
 }
 
-export default RoomTypes
+export default withRoleGuard(RoomTypes, ["ADMIN", "RECEPTIONIST"]);

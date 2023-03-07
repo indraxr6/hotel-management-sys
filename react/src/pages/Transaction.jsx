@@ -29,11 +29,18 @@ import {
    AccordionButton,
    AccordionPanel,
    AccordionIcon,
+   ButtonGroup,
+   ScaleFade,
+   Tooltip,
 } from "@chakra-ui/react";
-import { AiOutlineRight } from "react-icons/ai";
+import { AiOutlineCopy, AiOutlineRight } from "react-icons/ai";
+import { HiOutlineArrowSmRight } from "react-icons/hi";
 import format from "../helpers/dateFormat";
 import { useNavigate } from "react-router";
 import Pagination from "../components/atomic/pagination/Pagination";
+import Head from "../helpers/headTitle";
+import AlertStatus from "../components/atomic/alertStatus/AlertStatus";
+import withRoleGuard from "../helpers/roleGuard";
 
 const Transaction = () => {
    const [transaction, setTransaction] = useState([]);
@@ -44,7 +51,7 @@ const Transaction = () => {
    const [checkinDate, setCheckinDate] = useState("");
    const [checkoutDate, setCheckoutDate] = useState("");
    const [currentPage, setCurrentPage] = useState(1);
-   const [itemsPerPage, setItemsPerPage] = useState(10);
+   const [itemsPerPage, setItemsPerPage] = useState(20);
    const startIndex = (currentPage - 1) * itemsPerPage;
    const endIndex = startIndex + itemsPerPage;
    const currentItems = transaction ? transaction.slice(startIndex, endIndex) : [];
@@ -52,7 +59,7 @@ const Transaction = () => {
    const navigate = useNavigate()
 
    const page = 1;
-   const limit = 10;
+   const limit = 20;
 
    const handleCheckin = (e) => {
       const setCheckin = new Date(e.target.value);
@@ -74,14 +81,15 @@ const Transaction = () => {
    };
 
    const handleDetailsClick = (id) => {
-      navigate(`/transaction/${id}`)
+      // navigate(`/transaction/${id}`)
+      window.open(`/transaction/${id}`, "_blank")
    };
 
    useEffect(() => {
       async function fetchTransaction() {
          const queryParams = new URLSearchParams({
             page: page || 1,
-            limit: limit || 10,
+            limit: limit || 20,
             start_date: checkinDate || "",
             end_date: checkoutDate || "",
          });
@@ -104,7 +112,7 @@ const Transaction = () => {
    const filterTransaction = async () => {
       const queryParams = new URLSearchParams({
          page: page || 1,
-         limit: itemsPerPage || 10,
+         limit: itemsPerPage || 20,
          start_date: checkinDate || "",
          end_date: checkoutDate || "",
       });
@@ -119,6 +127,7 @@ const Transaction = () => {
 
    return (
       <div>
+         <Head title='Transactions' description={''} />
          <Sidebar>
             <Flex h="5" alignItems="flex-start" mx="31px" justifyContent="space-between">
                <Text fontSize="14px" fontFamily="monospace" fontWeight="thin">
@@ -132,7 +141,7 @@ const Transaction = () => {
                </Text>
             </Flex>
 
-            <Stats />
+            {/* <Stats /> */}
 
             <Box display="flex" alignItems="center" mb={0}>
                <Breadcrumb spacing="10px" margin={6} separator={<AiOutlineRight />}>
@@ -240,11 +249,11 @@ const Transaction = () => {
                </Accordion>
                <Table variant="simple" size={'sm'}>
                   <TableCaption>{currentItems.length} data transaction</TableCaption>
-                  <Thead>
+                  <Thead fontFamily={'inherit'}>
                      <Tr>
+                        <Th>No.</Th>
                         <Th>Order Number</Th>
                         <Th>Order Name</Th>
-                        {/* <Th>Order Date</Th> */}
                         <Th>Order Email</Th>
                         <Th>Status</Th>
                         <Th>Check-In Date</Th>
@@ -256,7 +265,7 @@ const Transaction = () => {
                      {currentItems.map((tb, index) => {
                         return (
                            <Tr key={index}>
-
+                              <Td>{index + 1}</Td>
                               <Td>{tb.order_number}</Td>
                               <Td>{tb.order_name}</Td>
                               {/* <Td>{format.formatDateWithTime(tb.order_date)}</Td> */}
@@ -272,7 +281,9 @@ const Transaction = () => {
                                        case "CHECK-IN":
                                           return <Badge colorScheme="yellow">CHECK-IN</Badge>;
                                        case "CHECK-OUT":
-                                          return <Badge colorScheme="red">CHECK-OUT</Badge>;
+                                          return <Badge colorScheme="blue">CHECK-OUT</Badge>;
+                                       case "CANCEL":
+                                          return <Badge colorScheme="red">CANCELLED</Badge>;
                                        default:
                                           return <Badge>{tb.order_status}</Badge>;
                                     }
@@ -282,9 +293,19 @@ const Transaction = () => {
                               <Td>{format.formatDate(tb.checkin_date)}</Td>
                               <Td>{format.formatDate(tb.checkout_date)}</Td>
                               <Td>
-                                 <Button variant={"outline"} size="sm" onClick={() => handleDetailsClick(tb.order_number)}>
-                                    Details
-                                 </Button>
+                                 <ButtonGroup>
+                                    <Tooltip hasArrow label={'Copy Order Number'}>
+                                       <Button variant={"outline"} size="sm" onClick={() => navigator.clipboard.writeText(tb.order_number)} width={'75%'}>
+                                          <AiOutlineCopy />
+                                       </Button>
+                                    </Tooltip>
+                                    <Tooltip hasArrow label={'See Order Details'}>
+                                       <Button variant={"outline"} size="sm" onClick={() => handleDetailsClick(tb.order_number)} width={'75%'}>
+                                          <HiOutlineArrowSmRight size={20} />
+                                       </Button>
+                                    </Tooltip>
+
+                                 </ButtonGroup>
                               </Td>
                            </Tr>
                         );
@@ -300,8 +321,9 @@ const Transaction = () => {
                />
             </TableContainer>
          </Sidebar>
+
       </div>
    );
 };
 
-export default Transaction;
+export default withRoleGuard(Transaction, ["ADMIN", "RECEPTIONIST"]);

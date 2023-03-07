@@ -10,6 +10,7 @@ import RoomList from './pages/RoomList';
 import CheckOrder from './pages/CheckOrder';
 import AddTransaction from './pages/AddTransaction';
 import TransactionDetail from './pages/TransactionDetail';
+import withRoleGuard from './helpers/roleGuard';
 // import OrderPage from './pages/OrderPage';
 
 
@@ -61,7 +62,8 @@ const routes = [
   },
   {
     path: '/check-order',
-    component: <CheckOrder/>
+    component: <CheckOrder/>,
+    title: 'Check Order'
   },
 //   {
 //     path: '/order',

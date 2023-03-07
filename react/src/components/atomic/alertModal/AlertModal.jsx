@@ -10,14 +10,24 @@ import {
 
 } from '@chakra-ui/react'
 
-function AlertModal({ isOpen, onClose, handleStatusChange, handleStatusCancel, handleOpenAlertCancel }) {
-     const handleClickChange = () => {
+function AlertModal({ isOpen, onClose, handleCloseAlertCancel, handleCloseAlert, handleStatusChange, handleStatusCancel, title, message }) {
+     // const handleClickChange = () => {
+     //      if (handleStatusChange) {
+     //           handleStatusChange();
+     //      }
+     //      onClose();
+     // };
+     // const handleClickCancel = () => {
+     //      if (handleStatusCancel) {
+     //           handleStatusCancel();
+     //      }
+     //      onClose();
+     // };
+
+     const handleClick = () => {
           if (handleStatusChange) {
                handleStatusChange();
           }
-          onClose();
-     };
-     const handleClickCancel = () => {
           if (handleStatusCancel) {
                handleStatusCancel();
           }
@@ -25,6 +35,10 @@ function AlertModal({ isOpen, onClose, handleStatusChange, handleStatusCancel, h
      };
 
      const handleClose = () => {
+          if (handleCloseAlert) {
+               handleCloseAlert();
+               handleCloseAlertCancel();
+          }
           onClose();
      };
      return (
@@ -37,16 +51,18 @@ function AlertModal({ isOpen, onClose, handleStatusChange, handleStatusCancel, h
                >
                     <ModalOverlay />
                     <ModalContent>
-                         <ModalHeader>Confirmation</ModalHeader>
+                         <ModalHeader>{title}</ModalHeader>
                          <ModalCloseButton />
                          <ModalBody>
-                              Are you sure you want to change the status of this order?
+                              {message}
                          </ModalBody>
                          <ModalFooter>
-                              <Button colorScheme='blue' mr={3} onClick={handleClickChange}>
+                              <Button colorScheme='blue' mr={3} onClick={handleClick}>
                                    Confirm
                               </Button>
-                              <Button variant='ghost' onClick={handleClose}>Abort</Button>
+                              <Button variant='ghost' onClick={handleClose}>
+                                   Abort
+                              </Button>
                          </ModalFooter>
                     </ModalContent>
                </Modal>

@@ -35,6 +35,9 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
 import Pagination from "../components/atomic/pagination/Pagination";
+import Head from "../helpers/headTitle";
+import withRoleGuard from "../helpers/roleGuard";
+
 
 const RoomList = () => {
    const [roomList, setRoomList] = useState([]);
@@ -44,7 +47,7 @@ const RoomList = () => {
    const [checkinDate, setCheckinDate] = useState("");
    const [checkoutDate, setCheckoutDate] = useState("");
    const [roomTypeReq, setRoomTypeReq] = useState("");
-   
+
    const apiURL = import.meta.env.VITE_API_URL;
    const navigate = useNavigate();
    //filtering
@@ -91,7 +94,7 @@ const RoomList = () => {
             body: JSON.stringify(findRequest),
          });
          const data = await response.json();
-         setRoomList(data.data);   
+         setRoomList(data.data);
       } catch (error) {
          console.log("Error fetching room availability:", error);
       }
@@ -133,6 +136,7 @@ const RoomList = () => {
 
    return (
       <div>
+         <Head title='Room List' description={''} />
          <Sidebar>
             <Flex h="5" alignItems="flex-start" mx="31px" justifyContent="space-between">
                <Text fontSize="14px" fontFamily="monospace" fontWeight="thin">
@@ -254,7 +258,7 @@ const RoomList = () => {
                                  <Th>Room ID</Th>
                                  <Th>Room Number</Th>
                                  <Th>Room Type</Th>
-                                 <Th>Actions</Th>
+                                 {localStorage.getItem("role") === "ADMIN" ? <Th>Actions</Th> : null}
                               </Tr>
                            </Thead>
                            <Tbody>
@@ -268,7 +272,7 @@ const RoomList = () => {
                                              ? tb.room_types.room_type_name
                                              : tb.room_type_name}
                                        </Td>
-
+                                    {localStorage.getItem("role") === "admin" ? 
                                        <Td>
                                           <ButtonGroup spacing={4} width={"100%"}>
                                              <Button
@@ -289,6 +293,8 @@ const RoomList = () => {
                                              </Button>
                                           </ButtonGroup>
                                        </Td>
+                                       : null
+                                       }
                                     </Tr>
                                  );
                               })}
@@ -370,6 +376,7 @@ const RoomList = () => {
                                        </Td>
                                        <Td>${tb.price}</Td>
                                        <Td>{tb.room_remaining} Rooms</Td>
+                                       {localStorage.getItem("role") == "ADMIN" ? 
                                        <Td>
                                           <Button
                                              variant="ghost"
@@ -379,6 +386,8 @@ const RoomList = () => {
                                              Details
                                           </Button>
                                        </Td>
+                                       : null
+                                       }
                                     </Tr>
                                  );
                               })}
@@ -393,4 +402,4 @@ const RoomList = () => {
    );
 };
 
-export default RoomList;
+export default withRoleGuard(RoomList, ["ADMIN", "RECEPTIONIST"]);

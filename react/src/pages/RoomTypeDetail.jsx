@@ -21,9 +21,11 @@ import { AiOutlineRight } from 'react-icons/ai'
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import BackButton from '../components/atomic/backArrow/BackArrow';
+import Head from '../helpers/headTitle';
+import withRoleGuard from '../helpers/roleGuard';
 
 
-export default function RoomTypeDetail() {
+const RoomTypeDetail = () => {
      const [roomDetails, setRoomDetails] = useState([]);
      const [facilities, setFacilities] = useState([]);
      const apiURL = import.meta.env.VITE_API_URL
@@ -46,6 +48,7 @@ export default function RoomTypeDetail() {
 
      return (
           <Sidebar>
+               <Head title='Room Types' description={''} />
                <Container alignItems={'flex-start'} justifyContent="flex-start">
                     <BackButton />
                </Container>
@@ -142,7 +145,6 @@ export default function RoomTypeDetail() {
                                         </Text>
 
                                         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={10}>
-
                                              {facilities.map((facility) => {
                                                   return (
                                                        <List spacing={2}>
@@ -150,22 +152,6 @@ export default function RoomTypeDetail() {
                                                        </List>
                                                   )
                                              })}
-
-
-                                             {/*                     
-                                        <List spacing={2}>
-                                             <ListItem>Chronograph</ListItem>
-                                             <ListItem>Master Chronometer Certified</ListItem>{' '}
-                                             <ListItem>Tachymeter</ListItem>
-                                        </List>
-                                        
-                                        <List spacing={2}>
-                                             <ListItem>Anti‑magnetic</ListItem>
-                                             <ListItem>Chronometer</ListItem>
-                                             <ListItem>Small seconds</ListItem>
-                                        </List> */}
-
-
                                         </SimpleGrid>
                                    </Box>
 
@@ -190,12 +176,8 @@ export default function RoomTypeDetail() {
                          </Stack>
                     </SimpleGrid>
                </Container>
-
-
-
-
           </Sidebar>
-
-
      );
 }
+
+export default withRoleGuard(RoomTypeDetail, ["ADMIN", "RECEPTIONIST"]);
