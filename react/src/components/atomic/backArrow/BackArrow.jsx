@@ -1,5 +1,5 @@
 import { IoIosArrowBack } from 'react-icons/io';
-import { Container, IconButton } from '@chakra-ui/react';
+import { IconButton } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 
 const BackButton = () => {
@@ -10,7 +10,6 @@ const BackButton = () => {
   };
 
   return (
-     
     <IconButton
       icon={<IoIosArrowBack />}
       aria-label="Go back"
@@ -18,7 +17,6 @@ const BackButton = () => {
       alignItems='center'
       size={"md"}
     />
-    
   );
 };
 

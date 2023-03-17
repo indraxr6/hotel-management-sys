@@ -32,11 +32,16 @@ import {
    AccordionButton,
    AccordionPanel,
    AccordionIcon,
+   Tooltip,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
 import Pagination from "../components/atomic/pagination/Pagination";
 import Head from "../helpers/headTitle";
 import withRoleGuard from "../helpers/roleGuard";
+import AlertModalForm from "../components/atomic/alertModalForm/AlertModalForm";
+import AlertConfirmation from "../components/atomic/alertConfirmation/alertConfirmation";
+import { AiOutlineDelete, AiOutlineEdit } from "react-icons/ai";
+
 
 
 const RoomList = () => {
@@ -46,16 +51,48 @@ const RoomList = () => {
    const [roomStatus, setRoomStatus] = useState("");
    const [checkinDate, setCheckinDate] = useState("");
    const [checkoutDate, setCheckoutDate] = useState("");
-   const [roomTypeReq, setRoomTypeReq] = useState("");
+   // const [roomTypeReq, setRoomTypeReq] = useState("");
+   const [roomDelete, setDeleteRoom] = useState("");
+   const [roomUpdate, setUpdateRoom] = useState("");
+
+   const [roomNumberReq, setRoomNumberReq] = useState("")
+   const [roomTypeReq, setRoomTypeReq] = useState("")
+
+   const [formErr, setFormErr] = useState(false);
+   const [isOpen, setIsOpen] = useState(false);
+   const [isOpenModal, setIsOpenModal] = useState(false);
 
    const apiURL = import.meta.env.VITE_API_URL;
    const navigate = useNavigate();
    //filtering
    const [currentPage, setCurrentPage] = useState(1);
-   const [itemsPerPage, setItemsPerPage] = useState(10);
+   const [itemsPerPage, setItemsPerPage] = useState(20);
    const startIndex = (currentPage - 1) * itemsPerPage;
    const endIndex = startIndex + itemsPerPage;
-   const currentItems = roomList.slice(startIndex, endIndex);
+   const currentItems = roomList;
+   const [filteredData, setFilteredData] = useState(currentItems);
+
+   const totalRoomsRemaining = roomRemaining.reduce((total, roomType) => total + roomType.room_remaining, 0);
+
+   // const currentItems = roomList.slice(startIndex, endIndex);
+
+
+
+   const handleRoomTypeSelect = (event) => {
+      const selectedRoomType = parseInt(event.target.value);
+      if (selectedRoomType) {
+        const filteredItems = currentItems.filter((item) => {
+          return (
+            item.id_room_type === selectedRoomType
+          );
+        });
+        console.log(filteredItems);
+        setFilteredData(filteredItems);
+        setCurrentPage(1); 
+      } else {
+        setFilteredData(currentItems);
+      }
+    };
 
    const handlePerPageChange = (e) => {
       const newPerPage = parseInt(e.target.value, 10);
@@ -76,10 +113,20 @@ const RoomList = () => {
       setCheckoutDate(setCheckout);
    };
 
+   const handleDelete = (id) => {
+      setDeleteRoom(id)
+      setIsOpen(true)
+   }
+
+   const handleUpdate = (id) => {
+      setUpdateRoom(id)
+      setIsOpenModal(true)
+   }
+
    const findRequest = {
       checkin_date: checkinDate,
       checkout_date: checkoutDate,
-      room_type_name: roomTypeReq,
+      // room_type_name: roomTypeReq,
       limit: itemsPerPage,
       offset: (currentPage - 1) * itemsPerPage,
    };
@@ -94,7 +141,7 @@ const RoomList = () => {
             body: JSON.stringify(findRequest),
          });
          const data = await response.json();
-         setRoomList(data.data);
+         setFilteredData(data.data);
       } catch (error) {
          console.log("Error fetching room availability:", error);
       }
@@ -116,6 +163,38 @@ const RoomList = () => {
       }
    };
 
+   const deleteRoom = async (id) => {
+      try {
+         const response = await fetch(`${apiURL}/room/delete/${id}`, {
+            method: "DELETE"
+         })
+         const data = await response.json()
+         if (response.ok) {
+            window.location.reload()
+         }
+      } catch (err) {
+         console.log("Error deleting room :", err);
+      }
+   }
+
+   const updateRoom = async (id) => {
+      try {
+         const response = await fetch(`${apiURL}/room/edit/${id}`, {
+            method: "PUT",
+            headers: {
+               'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(editRequest)
+         })
+         const data = await response.json()
+         if (response.ok) {
+            window.location.reload()
+         }
+      } catch (err) {
+         console.log("Error deleting room :", err);
+      }
+   }
+
    useEffect(() => {
       async function fetchRoomData() {
          try {
@@ -126,6 +205,7 @@ const RoomList = () => {
             const rooms = await roomsResponse.json();
             const roomTypes = await roomTypesResponse.json();
             setRoomList(rooms.data);
+            setFilteredData(rooms.data);
             setRoomType(roomTypes.data);
          } catch (error) {
             console.log("Error fetching room data:", error);
@@ -133,6 +213,39 @@ const RoomList = () => {
       }
       fetchRoomData();
    }, []);
+
+   const handleChange = (prop) => (e) => {
+      if (roomNumberReq === "" || roomTypeReq === "") {
+         setFormErr(true);
+      } else {
+         setFormErr(false);
+      }
+
+      if (prop === 'room_number') {
+         setRoomNumberReq(e.target.value);
+
+      }
+      if (prop === 'room_type') {
+         setRoomTypeReq(e.target.value);
+      }
+   }
+
+   const editRequest = {
+      ...(roomNumberReq && { room_number: roomNumberReq }),
+      ...(parseInt(roomTypeReq) && { id_room_type: parseInt(roomTypeReq) })
+   };
+
+   const handleCloseAlert = () => {
+      setIsOpen(false);
+   };
+
+   const handleOpenModal = () => {
+      setIsOpenModal(true);
+   }
+
+   const handleCloseModal = () => {
+      setIsOpenModal(false);
+   }
 
    return (
       <div>
@@ -152,20 +265,32 @@ const RoomList = () => {
 
             <Breadcrumb spacing="10px" margin={7} separator={<AiOutlineRight />}>
                <BreadcrumbItem>
-                  <BreadcrumbLink href="#">Room List</BreadcrumbLink>
+                  <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
                </BreadcrumbItem>
 
                <BreadcrumbItem>
-                  <BreadcrumbLink href="#">About</BreadcrumbLink>
+                  <BreadcrumbLink href="#">Room List</BreadcrumbLink>
                </BreadcrumbItem>
 
                <BreadcrumbItem isCurrentPage>
-                  <BreadcrumbLink href="#">Contact</BreadcrumbLink>
+                  <BreadcrumbLink href="#">Room Availability</BreadcrumbLink>
                </BreadcrumbItem>
+               <Button
+                  variant={"solid"}
+                  colorScheme={"green"}
+                  size="md"
+                  fontSize={"sm"}
+                  mr={6}
+                  onClick={() => {
+                     navigate("/room/add")
+                  }}
+               >
+                  Add Room
+               </Button>
             </Breadcrumb>
 
             <TableContainer p={"6"}>
-               <Tabs isFitted variant="enclosed">
+               <Tabs isFitted variant='soft-rounded'>
                   <TabList mb="4em">
                      <Tab>Room Availability</Tab>
                      <Tab>Room Remaining</Tab>
@@ -216,11 +341,12 @@ const RoomList = () => {
                                     </FormControl>
                                     <FormControl ml={4}>
                                        <FormLabel>Room Type</FormLabel>
-                                       <Select onChange={(e) => setRoomTypeReq(e.target.value)}>
-                                          <option value={""}>--Select Room Type--</option>
+                                       <Select onChange={handleRoomTypeSelect}>
+                                          <option value={0}>--Select Room Type--</option>
+                                          <option value={""}>Show All Room</option>
                                           {roomType.map((option, index) => {
                                              return (
-                                                <option key={index} value={option.room_type_name}>
+                                                <option key={index} value={option.id}>
                                                    {option.room_type_name}
                                                 </option>
                                              );
@@ -251,18 +377,17 @@ const RoomList = () => {
                         </Accordion>
 
                         <Table variant="simple" colorScheme="twitter">
-                           <TableCaption>{roomList.length} rooms available</TableCaption>
-
+                           <TableCaption>{filteredData.length} rooms available</TableCaption>
                            <Thead>
                               <Tr>
                                  <Th>Room ID</Th>
                                  <Th>Room Number</Th>
                                  <Th>Room Type</Th>
-                                 {localStorage.getItem("role") === "ADMIN" ? <Th>Actions</Th> : null}
+                                 {localStorage.getItem("role") === "ADMIN" || localStorage.getItem("role") === "SUPERADMIN" ? <Th>Actions</Th> : null}
                               </Tr>
                            </Thead>
                            <Tbody>
-                              {currentItems.map((tb, index) => {
+                              {filteredData.slice(startIndex, endIndex).map((tb, index) => {
                                  return (
                                     <Tr key={index}>
                                        <Td>{tb.id}</Td>
@@ -272,28 +397,35 @@ const RoomList = () => {
                                              ? tb.room_types.room_type_name
                                              : tb.room_type_name}
                                        </Td>
-                                    {localStorage.getItem("role") === "admin" ? 
-                                       <Td>
-                                          <ButtonGroup spacing={4} width={"100%"}>
-                                             <Button
-                                                variant={"solid"}
-                                                colorScheme={"blue"}
-                                                flex={1}
-                                                size="sm"
-                                             >
-                                                Edit
-                                             </Button>
-                                             <Button
-                                                variant={"solid"}
-                                                colorScheme={"red"}
-                                                flex={1}
-                                                size="sm"
-                                             >
-                                                Delete
-                                             </Button>
-                                          </ButtonGroup>
-                                       </Td>
-                                       : null
+                                       {localStorage.getItem("role") === "ADMIN" || localStorage.getItem("role") === "SUPERADMIN" ?
+                                          <Td>
+                                             <ButtonGroup spacing={4} width={"100%"}>
+                                                <Tooltip hasArrow label={'Edit'}>
+                                                <Button
+                                                   variant={"solid"}
+                                                   colorScheme={"blue"}
+                                                   flex={1}
+                                                   size="sm"
+                                                   onClick={() => handleUpdate(tb.id)}
+                                                >
+                                                   <AiOutlineEdit size={20}/>
+                                                </Button>
+
+                                                </Tooltip>
+                                                <Tooltip hasArrow label={'Delete'}>
+                                                <Button
+                                                   variant={"solid"}
+                                                   colorScheme={"red"}
+                                                   flex={1}
+                                                   size="sm"
+                                                   onClick={() => handleDelete(tb.id)}
+                                                >
+                                                   <AiOutlineDelete size={18}/>
+                                                </Button>
+                                                </Tooltip>
+                                             </ButtonGroup>
+                                          </Td>
+                                          : null
                                        }
                                     </Tr>
                                  );
@@ -302,9 +434,9 @@ const RoomList = () => {
                         </Table>
 
                         <Pagination
-                           currentPage={currentPage}
-                           itemsPerPage={10}
-                           totalItems={roomList.length}
+                           currentPage={filteredData}
+                           itemsPerPage={itemsPerPage}
+                           totalItems={filteredData.length}
                            onPageChange={handlePageChange}
                            handlePerPageChange={handlePerPageChange}
                         />
@@ -348,12 +480,15 @@ const RoomList = () => {
                         </Button>
 
                         <Table variant="simple" colorScheme="twitter">
-                           {roomRemaining.length == 0 ? (
+                           {roomRemaining.length == 0 ? 
+                           (
                               <TableCaption>
                                  Input specified date to check room remainings
                               </TableCaption>
                            ) : (
-                              ""
+                              <TableCaption>
+                                 {totalRoomsRemaining} rooms remaining total from date specified.
+                              </TableCaption>
                            )}
                            <Thead>
                               <Tr>
@@ -376,7 +511,6 @@ const RoomList = () => {
                                        </Td>
                                        <Td>${tb.price}</Td>
                                        <Td>{tb.room_remaining} Rooms</Td>
-                                       {localStorage.getItem("role") == "ADMIN" ? 
                                        <Td>
                                           <Button
                                              variant="ghost"
@@ -386,8 +520,6 @@ const RoomList = () => {
                                              Details
                                           </Button>
                                        </Td>
-                                       : null
-                                       }
                                     </Tr>
                                  );
                               })}
@@ -398,8 +530,28 @@ const RoomList = () => {
                </Tabs>
             </TableContainer>
          </Sidebar>
+
+         <AlertConfirmation
+            isOpen={isOpen}
+            onClose={handleCloseAlert}
+            title={"Delete Room"}
+            message={"Are you sure you want to delete this room?"}
+            deleteRoom={() => deleteRoom(roomDelete)}
+            type={'delete'}
+         />
+
+         <AlertModalForm
+            isOpen={isOpenModal}
+            onOpen={handleOpenModal}
+            onClose={handleCloseModal}
+            title={"Edit Room Data"}
+            updateRoom={() => updateRoom(roomUpdate)}
+            handleChange={handleChange}
+            formErr={formErr}
+            roomType={roomType}
+         />
       </div>
    );
 };
 
-export default withRoleGuard(RoomList, ["ADMIN", "RECEPTIONIST"]);
+export default withRoleGuard(RoomList, ["ADMIN", "RECEPTIONIST", "SUPERADMIN"]);

@@ -51,11 +51,13 @@ const CheckOrder = (props) => {
       setErrMessage(errMessage);
       setMessage(message);
     }
+  };
 
-    if (e.key === "Enter") {
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
       handleSubmit();
     }
-  };
+  }
 
   const handleReset = () => {
     setOrderNumber("");
@@ -74,6 +76,7 @@ const CheckOrder = (props) => {
   const handleCloseAlert = () => {
     setIsOpen(false);
   };
+  
 
   const handleCloseAlertCancel = () => {
     setIsOpenCancel(false);
@@ -175,7 +178,7 @@ const CheckOrder = (props) => {
 
   return (
     <div>
-      <Head title='Check Order' description={''}/>
+      <Head title='Check Order' description={''} />
       <Sidebar>
         <Flex
           h="5"
@@ -201,16 +204,14 @@ const CheckOrder = (props) => {
 
         <Breadcrumb spacing="10px" margin={7} separator={<AiOutlineRight />}>
           <BreadcrumbItem>
-            <BreadcrumbLink href="#">Input Order</BreadcrumbLink>
-          </BreadcrumbItem>
-
-          <BreadcrumbItem>
-            <BreadcrumbLink href="#">About</BreadcrumbLink>
+            <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
           </BreadcrumbItem>
 
           <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink href="#">Contact</BreadcrumbLink>
+            <BreadcrumbLink href="#">Check Order</BreadcrumbLink>
           </BreadcrumbItem>
+
+
         </Breadcrumb>
 
         <Stack spacing={6} margin={7}>
@@ -223,6 +224,7 @@ const CheckOrder = (props) => {
                   placeholder="Insert order number"
                   value={orderNumber}
                   onChange={handleChange}
+                  onKeyPress={handleKeyPress}
                 />
               </FormControl>
               <ButtonGroup spacing={5} width={"100%"}>
@@ -356,23 +358,26 @@ const CheckOrder = (props) => {
             handleOpenAlert={handleOpenAlert}
             title={'Change Status'}
             message={orderStatus == "NEW" ? "Are you sure want to check-in this order?" : "Are you sure want to check-out this order?"}
+            type={'add'}
+
           />
-          
+
           <AlertModal
             isOpen={isOpenCancel}
-            onClose={handleCloseAlert}
+            onClose={handleCloseAlertCancel}
             handleStatusCancel={handleStatusCancel}
-            handleOpenAlertCancel={handleOpenAlertCancel}
-            handleCloseAlertCancel={handleCloseAlertCancel}
+            // handleOpenAlertCancel={handleOpenAlertCancel}
+            // handleCloseAlertCancel={handleCloseAlertCancel}
             title={"Cancel Order"}
             message={"Are you sure want to cancel this order?"}
+            type={'delete'}
           />
-          
+
         </Stack>
       </Sidebar>
     </div>
   );
 };
 
-export default withRoleGuard(CheckOrder, ["ADMIN", "RECEPTIONIST"]);
+export default withRoleGuard(CheckOrder, ["ADMIN", "RECEPTIONIST", "SUPERADMIN"]);
 

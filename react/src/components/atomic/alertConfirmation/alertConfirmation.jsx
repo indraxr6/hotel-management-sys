@@ -10,22 +10,24 @@ import {
 
 } from '@chakra-ui/react'
 
-function AlertConfirmation({ isOpen, onClose, title, message, addTransaction, deleteTransaction, addUser, addRoom }) {
+function AlertConfirmation({ isOpen, onClose, title, message, type, addTransaction, deleteTransaction, deleteRoomType, deleteRoom, addRoomType, editRoomType, addRoom, makeAsAdmin, deleteUser }) {
      const handleConfirm = () => {
-          if (addTransaction) {
-               addTransaction();
-          }
-          onClose();
-
-          if (deleteTransaction) {
-               deleteTransaction();
-          }
+          addTransaction ? addTransaction() : null;
+          deleteTransaction ? deleteTransaction() : null;
+          deleteRoomType ? deleteRoomType() : null;
+          deleteRoom ? deleteRoom() : null;
+          editRoomType ? editRoomType() : null;
+          addRoomType ? addRoomType() : null;
+          addRoom ? addRoom() : null;
+          makeAsAdmin ? makeAsAdmin() : null;
+          deleteUser ? deleteUser() : null;
           onClose();
      };
 
      const handleClose = () => {
           onClose();
      };
+     
      return (
           <>
                <Modal
@@ -42,7 +44,7 @@ function AlertConfirmation({ isOpen, onClose, title, message, addTransaction, de
                               {message}
                          </ModalBody>
                          <ModalFooter>
-                              <Button colorScheme={deleteTransaction ? 'red' : 'blue'} mr={3} onClick={handleConfirm}>
+                              <Button colorScheme={type === 'delete' ? 'red' : 'blue'} mr={3} onClick={handleConfirm}>
                                    Confirm
                               </Button>
                               <Button variant='ghost' onClick={handleClose}>Abort</Button>

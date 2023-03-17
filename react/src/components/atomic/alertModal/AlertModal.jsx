@@ -10,7 +10,7 @@ import {
 
 } from '@chakra-ui/react'
 
-function AlertModal({ isOpen, onClose, handleCloseAlertCancel, handleCloseAlert, handleStatusChange, handleStatusCancel, title, message }) {
+function AlertModal({ isOpen, onClose, handleCloseAlertCancel, handleCloseAlert, handleStatusChange, handleStatusCancel, title, message, type }) {
      // const handleClickChange = () => {
      //      if (handleStatusChange) {
      //           handleStatusChange();
@@ -57,7 +57,7 @@ function AlertModal({ isOpen, onClose, handleCloseAlertCancel, handleCloseAlert,
                               {message}
                          </ModalBody>
                          <ModalFooter>
-                              <Button colorScheme='blue' mr={3} onClick={handleClick}>
+                              <Button colorScheme={type === 'delete' ? 'red' : 'blue'} mr={3} onClick={handleClick}>
                                    Confirm
                               </Button>
                               <Button variant='ghost' onClick={handleClose}>

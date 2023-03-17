@@ -17,7 +17,8 @@ import {
      BreadcrumbLink,
      Flex,
      ButtonGroup,
-     ScaleFade
+     ScaleFade,
+     Tooltip
 } from "@chakra-ui/react";
 import { AiOutlineRight } from "react-icons/ai";
 import { useNavigate, useParams } from "react-router";
@@ -28,6 +29,7 @@ import trashIcon from '../assets/lotties/trash.json';
 import Head from "../helpers/headTitle";
 import AlertModalForm from "../components/atomic/alertModalForm/AlertModalForm";
 import withRoleGuard from "../helpers/roleGuard";
+import OrderStatusTag from "../components/atomic/orderStatusTag/OrderStatusTag";
 
 const TransactionDetail = () => {
      const [orderDetails, setOrderDetails] = useState([]);
@@ -55,7 +57,7 @@ const TransactionDetail = () => {
 
           if (prop === 'order_name') {
                setOrderName(e.target.value);
-               
+
           }
           if (prop === 'order_email') {
                setOrderEmail(e.target.value);
@@ -83,7 +85,7 @@ const TransactionDetail = () => {
           ...(orderName && { order_name: orderName }),
           ...(orderEmail && { order_email: orderEmail }),
           ...(guestName && { guest_name: guestName })
-        }
+     }
 
      const updateTransaction = async (id) => {
           try {
@@ -206,21 +208,24 @@ const TransactionDetail = () => {
                          <Stack spacing={6} margin={7}>
                               <Box borderWidth="1px" p="4">
                                    <Text fontSize="2xl" fontFamily="monospace" fontWeight="bold" mt={3}>
-                                        Order Data
+                                        {roomTypeImage.room_type_name || "This order is canceled."}
                                    </Text>
 
                                    <SimpleGrid py={{ base: 18, md: 5 }}>
                                         <Flex ml={8} alignItems={""}>
-                                             <Image
-                                                  rounded={"md"}
-                                                  alt={"product image"}
-                                                  src={`${apiURL}/images/room/${roomTypeImage.photo}`}
-                                                  fit={"cover"}
-                                                  mr={5}
-                                                  align={"center"}
-                                                  w={"25%"}
-                                                  h={{ base: "100%", sm: "150px", lg: "250" }}
-                                             />
+                                             <Tooltip hasArrow label={`Price per-room : $${roomTypeImage.price}`}>
+                                                  <Image
+                                                       rounded={"md"}
+                                                       alt={"product image"}
+                                                       src={`${apiURL}/images/room/${roomTypeImage.photo}`}
+                                                       fallbackSrc="https://via.placeholder.com/400x350"
+                                                       fit={"cover"}
+                                                       mr={5}
+                                                       align={"center"}
+                                                       w={"25%"}
+                                                       h={{ base: "100%", sm: "150px", lg: "250" }}
+                                                  />
+                                             </Tooltip>
                                              <SimpleGrid columns={{ base: 2, md: 3 }} spacing={12}>
                                                   <Card>
                                                        <CardBody>
@@ -268,38 +273,7 @@ const TransactionDetail = () => {
                                                                            Order Status
                                                                       </Heading>
                                                                       <Text pt="2" fontSize="sm">
-                                                                           {(() => {
-                                                                                switch (orderDetails.order_status) {
-                                                                                     case "Default":
-                                                                                          return (
-                                                                                               <Badge alignContent={"center"}>
-                                                                                                    Default
-                                                                                               </Badge>
-                                                                                          );
-                                                                                     case "NEW":
-                                                                                          return (
-                                                                                               <Badge colorScheme="green">NEW</Badge>
-                                                                                          );
-                                                                                     case "CHECK-IN":
-                                                                                          return (
-                                                                                               <Badge colorScheme="yellow">
-                                                                                                    CHECK-IN
-                                                                                               </Badge>
-                                                                                          );
-                                                                                     case "CHECK-OUT":
-                                                                                          return (
-                                                                                               <Badge colorScheme="red">
-                                                                                                    CHECK-OUT
-                                                                                               </Badge>
-                                                                                          );
-                                                                                     default:
-                                                                                          return (
-                                                                                               <Badge>
-                                                                                                    {orderDetails.order_status}
-                                                                                               </Badge>
-                                                                                          );
-                                                                                }
-                                                                           })()}
+                                                                           <OrderStatusTag orderStatus={orderDetails.order_status} />
                                                                       </Text>
                                                                  </Box>
                                                                  <Box>
@@ -410,15 +384,15 @@ const TransactionDetail = () => {
                                    <Button variant={"solid"} colorScheme={"blue"} flex={1} size="sm" onClick={() => handleOpenModal()}>
                                         Edit
                                    </Button>
-                                   { localStorage.getItem("role") === "ADMIN" ?
-                                   <Button variant={"solid"} colorScheme={"red"} flex={1} size="sm" onClick={() => handleOpenAlert()}>
-                                        Delete
-                                   </Button>
-                                   : null
+                                   {localStorage.getItem("role") === "ADMIN" || localStorage.getItem("role") === "SUPERADMIN" ?
+                                        <Button variant={"solid"} colorScheme={"red"} flex={1} size="sm" onClick={() => handleOpenAlert()}>
+                                             Delete
+                                        </Button>
+                                        : null
                                    }
                               </ButtonGroup>
-                         </Stack> 
-                    } 
+                         </Stack>
+                    }
                </Sidebar>
 
                <AlertConfirmation
@@ -427,6 +401,7 @@ const TransactionDetail = () => {
                     title={"Delete Transaction"}
                     message={"Are you sure you want to delete this transaction data?"}
                     deleteTransaction={() => deleteTransaction(orderDetails.order_number)}
+                    type={'delete'}
                />
 
                <AlertModalForm
@@ -439,11 +414,11 @@ const TransactionDetail = () => {
                     handleChange={handleChange}
                     orderName={orderDetails.order_name}
                     orderEmail={orderDetails.order_email}
-                    guestName={orderDetails.guest_name}      
+                    guestName={orderDetails.guest_name}
                     formErr={formErr}
                />
           </div>
      );
 };
 
-export default withRoleGuard(TransactionDetail, ["ADMIN", "RECEPTIONIST"]);;
+export default withRoleGuard(TransactionDetail, ["ADMIN", "RECEPTIONIST", "SUPERADMIN", "CUSTOMER"]);;

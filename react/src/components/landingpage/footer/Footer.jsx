@@ -10,10 +10,13 @@ import {
   Input,
   IconButton,
   useColorModeValue,
+  Image
 } from '@chakra-ui/react';
-import { ReactNode } from 'react';
+
 import { FaInstagram, FaTwitter, FaYoutube } from 'react-icons/fa';
 import { BiMailSend } from 'react-icons/bi';
+import logo from '../../../assets/images/slanda-logo-notext1.png';
+
 
 const Logo = (props) => {
   return (
@@ -79,20 +82,21 @@ export default function Footer() {
           templateColumns={{ sm: '1fr 1fr', md: '2fr 1fr 1fr 2fr' }}
           spacing={8}>
           <Stack spacing={6}>
-            <Box>
-              <Logo color={useColorModeValue('gray.700', 'white')} />
+            <Box display={'flex'}>
+              <Image src={logo} alt="Logo" width={12} mr={2}
+                css={localStorage.getItem('chakra-ui-color-mode') === 'light' ? { filter: 'invert(0)' } : { filter: "invert(1)" }}
+              />
+              <Text fontSize={'sm'} mt={3.5} fontWeight={'bold'} >Slanda Inc.</Text>
+             
             </Box>
-            <Text fontSize={'sm'}>
-              © 2022 Chakra Templates. All rights reserved
+            <Text fontSize={'sm'} textAlign={'left'}>
+              © 2023 Slanda Hotel Management.
             </Text>
             <Stack direction={'row'} spacing={6}>
               <SocialButton label={'Twitter'} href={'#'}>
                 <FaTwitter />
               </SocialButton>
-              <SocialButton label={'YouTube'} href={'#'}>
-                <FaYoutube />
-              </SocialButton>
-              <SocialButton label={'Instagram'} href={'#'}>
+              <SocialButton label={'Instagram'} href={'https://www.instagram.com/ini.bin/'}>
                 <FaInstagram />
               </SocialButton>
             </Stack>
@@ -100,18 +104,13 @@ export default function Footer() {
           <Stack align={'flex-start'}>
             <ListHeader>Company</ListHeader>
             <Link href={'#'}>About us</Link>
-            <Link href={'#'}>Blog</Link>
             <Link href={'#'}>Contact us</Link>
-            <Link href={'#'}>Pricing</Link>
-            <Link href={'#'}>Testimonials</Link>
+            <Link href={'#'}>Services</Link>
           </Stack>
           <Stack align={'flex-start'}>
             <ListHeader>Support</ListHeader>
             <Link href={'#'}>Help Center</Link>
-            <Link href={'#'}>Terms of Service</Link>
-            <Link href={'#'}>Legal</Link>
-            <Link href={'#'}>Privacy Policy</Link>
-            <Link href={'#'}>Satus</Link>
+
           </Stack>
           <Stack align={'flex-start'}>
             <ListHeader>Stay up to date</ListHeader>
@@ -125,13 +124,14 @@ export default function Footer() {
                 }}
               />
               <IconButton
-                bg={useColorModeValue('green.400', 'green.800')}
-                color={useColorModeValue('white', 'gray.800')}
+                bg={useColorModeValue('blue.400', 'blue.200')}
+                color={useColorModeValue('white')}
                 _hover={{
-                  bg: 'green.600',
+                  bg: 'blue.600',
+                  
                 }}
                 aria-label="Subscribe"
-              //     icon={<BiMailSend />}
+                icon={<BiMailSend />}
               />
             </Stack>
           </Stack>

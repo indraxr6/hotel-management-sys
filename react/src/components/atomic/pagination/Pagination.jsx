@@ -1,4 +1,4 @@
-import { Button, FormControl, FormLabel, Select } from '@chakra-ui/react';
+import { Button } from '@chakra-ui/react';
 import React from 'react'
 
 const Pagination = ({ currentPage, itemsPerPage, totalItems, onPageChange }) => {
@@ -8,15 +8,14 @@ const Pagination = ({ currentPage, itemsPerPage, totalItems, onPageChange }) => 
           pageNumbers.push(i);
      }
      return (
-          <div>
+          <>
                {pageNumbers.map((pageNumber) => (
                     <Button variant={'outline'} key={pageNumber} onClick={() => onPageChange(pageNumber)} disabled={pageNumber === currentPage}>
                          {pageNumber}
                     </Button>
                ))}
-          </div>
+          </>
      );
 };
-
 
 export default Pagination

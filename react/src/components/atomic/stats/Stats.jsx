@@ -70,17 +70,17 @@ export default function Stats() {
       <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 5, lg: 8 }} textAlign={'left'}>
         <StatsCard
           title={`Revenue (${month.toLocaleString('default', { month: 'long' })})`}
-          stat={"$" + revenue}
+          stat={revenue ? "$" + revenue : "$0"}
           icon={<BiDollar size={'3em'} />}
         />
         <StatsCard
           title={'Orders this Month'}
-          stat={orderCount}
+          stat={orderCount ? orderCount : "0"}
           icon={<FaFileInvoice size={'3em'} />}
         />
         <StatsCard
           title={'Available Room Now'}
-          stat={roomCount}
+          stat={roomCount ? roomCount : "0"}
           icon={<BsDoorOpen size={'3em'} />}
         />
       </SimpleGrid>

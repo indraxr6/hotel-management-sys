@@ -29,10 +29,18 @@ import {
 import { AiOutlineDelete, AiOutlineEdit, AiOutlineRight, AiOutlineSearch } from "react-icons/ai";
 import Head from "../helpers/headTitle";
 import withRoleGuard from "../helpers/roleGuard";
+import { MdAdminPanelSettings } from "react-icons/md";
+import AlertConfirmation from "../components/atomic/alertConfirmation/alertConfirmation";
+import RoleBadge from "../components/atomic/roleTag/RoleTag";
 
 const Users = () => {
   const [userData, setUserData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedUser, setselectedUser] = useState("");
+
+  const [isOpen, setIsOpen] = useState(false)
+  const [isOpenDelete, setIsOpenDelete] = useState(false)
+
   const apiURL = import.meta.env.VITE_API_URL;
 
   const filteredUserData = userData.filter(
@@ -42,6 +50,63 @@ const Users = () => {
       tb.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
       tb.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const role = {
+    role: "ADMIN"
+  }
+
+  const handleOpenAlert = (id) => {
+    setselectedUser(id)
+    setIsOpen(true);
+  };
+
+  const handleOpenAlertDelete = (id) => {
+    setselectedUser(id)
+    setIsOpenDelete(true);
+  };
+
+  const handleCloseAlert = () => {
+    setIsOpen(false);
+    setIsOpenDelete(false)
+  };
+
+
+  const makeAsAdmin = async () => {
+    try {
+      const res = await fetch(`${apiURL}/user/editrole/${selectedUser}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(role)
+      })
+      const data = await res.json()
+      if (res.ok) {
+        window.location.reload()
+        setselectedUser("")
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const deleteUser = async () => {
+    try {
+      const res = await fetch(`${apiURL}/user/delete/${selectedUser}`, {
+        method: 'DELETE',
+
+      })
+      const data = await res.json()
+      if (res.ok) {
+        window.location.reload()
+        setselectedUser("")
+
+      }
+      console.log(data)
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   useEffect(() => {
     async function fetchRoomTypes() {
@@ -85,17 +150,14 @@ const Users = () => {
 
         <Breadcrumb spacing="10px" margin={7} separator={<AiOutlineRight />}>
           <BreadcrumbItem>
-            <BreadcrumbLink href="#">Users</BreadcrumbLink>
+            <BreadcrumbLink href="#">Dashboard</BreadcrumbLink>
           </BreadcrumbItem>
 
           <BreadcrumbItem>
-            <BreadcrumbLink href="#">About</BreadcrumbLink>
-          </BreadcrumbItem>
-
-          <BreadcrumbItem isCurrentPage>
-            <BreadcrumbLink href="#">Contact</BreadcrumbLink>
+            <BreadcrumbLink href="#">Users</BreadcrumbLink>
           </BreadcrumbItem>
         </Breadcrumb>
+
 
         <TableContainer p={"6"}>
           <FormLabel>Search</FormLabel>
@@ -112,15 +174,6 @@ const Users = () => {
                 <InputRightAddon children={<AiOutlineSearch />} />
               </InputGroup>
             </FormControl>
-            <Button
-              variant={"solid"}
-              colorScheme={"green"}
-              size="md"
-              fontSize={"sm"}
-              mr={6}
-            >
-              Add User
-            </Button>
           </Box>
 
           <Table variant="simple" colorScheme="twitter">
@@ -133,7 +186,7 @@ const Users = () => {
                 <Th>Email</Th>
                 {/* <Th>Password</Th> */}
                 <Th>Role</Th>
-                {localStorage.getItem('role') === 'ADMIN' ? <Th>Action</Th> : null}
+                {localStorage.getItem("role") === "SUPERADMIN" ? <Th>Action</Th> : null}
               </Tr>
             </Thead>
             <Tbody>
@@ -152,54 +205,58 @@ const Users = () => {
                     {/* <Td>{tb.password}</Td> */}
 
                     <Td>
-                      {(() => {
-                        switch (tb.role) {
-                          case "Default":
-                            return (
-                              <Badge alignContent={"center"}>Default</Badge>
-                            );
-                          case "CUSTOMER":
-                            return <Badge colorScheme="green">CUSTOMER</Badge>;
-                          case "RECEPTIONIST":
-                            return (
-                              <Badge colorScheme="yellow">RECEPTIONIST</Badge>
-                            );
-                          case "ADMIN":
-                            return <Badge colorScheme="red">ADMIN</Badge>;
-                          default:
-                            return <Badge>UNKNOWN</Badge>;
-                        }
-                      })()}
+                      <RoleBadge role={tb.role} />
                     </Td>
 
-                    {localStorage.getItem('role') === 'ADMIN' ?
+                    {localStorage.getItem('role') === 'SUPERADMIN' ?
                       <Td>
-                        <ButtonGroup spacing={3} width={"70%"}>
-                          <Tooltip hasArrow label={'Edit'}>
-                            <Button
-                              variant={"solid"}
-                              colorScheme={"blue"}
-                              flex={1}
-                              size="sm"
-                            >
-                              <AiOutlineEdit />
-                            </Button>
-                          </Tooltip>
-                          <Tooltip hasArrow label={'Delete'}>
-                            <Button
-                              variant={"solid"}
-                              colorScheme={"red"}
-                              flex={1}
-                              size="sm"
-                            >
-                              <AiOutlineDelete />
-                            </Button>
-                          </Tooltip>
-                        </ButtonGroup>
-                      </Td> 
-                      : null
-                    }
+                        {tb.id === localStorage.getItem('id') ?
+                          <RoleBadge role={'YOU'}/>
+                          :
+                          <ButtonGroup spacing={3} width={"70%"}>
+                            { tb.role === 'RECEPTIONIST' ?
+                            <Tooltip hasArrow label={'Make as Admin'}>
+                              <Button
+                                variant={"solid"}
+                                colorScheme={"blue"}
+                                flex={1}
+                                size="sm"
+                                onClick={() => handleOpenAlert(tb.id)}
+                              >
+                                <MdAdminPanelSettings size={18} />
+                              </Button>
+                            </Tooltip>
+                            :
+                            <Tooltip hasArrow label={'Make as Receptionist'}>
+                              <Button
+                                variant={"solid"}
+                                colorScheme={"green"}
+                                flex={1}
+                                size="sm"
+                                onClick={() => handleOpenAlert(tb.id)}
+                              >
+                                <MdAdminPanelSettings size={18} />
+                              </Button>
+                            </Tooltip>
+                            }
 
+                            <Tooltip hasArrow label={'Delete'}>
+                              <Button
+                                variant={"solid"}
+                                colorScheme={"red"}
+                                flex={1}
+                                size="sm"
+                                onClick={() => handleOpenAlertDelete(tb.id)}
+                              >
+                                <AiOutlineDelete size={18} />
+                              </Button>
+                            </Tooltip>
+                          </ButtonGroup>
+                        }
+                      </Td>
+                      :
+                      null
+                    }
                   </Tr>
                 );
               })}
@@ -207,8 +264,24 @@ const Users = () => {
           </Table>
         </TableContainer>
       </Sidebar>
+      <AlertConfirmation
+        isOpen={isOpen}
+        onClose={handleCloseAlert}
+        title={"Confirmation"}
+        message={"Are you sure to make this user as an admin?"}
+        makeAsAdmin={makeAsAdmin}
+        type={'add'}
+      />
+      <AlertConfirmation
+        isOpen={isOpenDelete}
+        onClose={handleCloseAlert}
+        title={"Confirmation"}
+        message={"Are you sure delete this user?"}
+        deleteUser={deleteUser}
+        type={'delete'}
+      />
     </div>
   );
 };
 
-export default withRoleGuard(Users, ["ADMIN", "RECEPTIONIST"]);;
+export default withRoleGuard(Users, ["ADMIN", "RECEPTIONIST", "SUPERADMIN"]);;

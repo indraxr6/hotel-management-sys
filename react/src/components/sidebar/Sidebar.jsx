@@ -9,7 +9,6 @@ import {
   Flex,
   HStack,
   VStack,
-
   Icon,
   useColorModeValue,
   Drawer,
@@ -19,13 +18,12 @@ import {
   Image,
   Menu,
   MenuButton,
-  MenuDivider,
   MenuItem,
   MenuList,
   Tooltip,
+  useColorMode,
 } from '@chakra-ui/react';
 import {
-  FiHome,
   FiMenu,
   FiBell,
   FiMoon,
@@ -34,16 +32,19 @@ import {
   FiCreditCard,
   FiUsers,
   FiLogOut
+  
 } from 'react-icons/fi';
+import { AiOutlineDashboard } from 'react-icons/ai';
 import { BsDoorOpen } from 'react-icons/bs';
 import { MdOutlineFactCheck } from 'react-icons/md';
 import LiveClock from '../liveClock/LiveClock';
+import ProfileModal from '../profileModal/ProfileModal';
+import { useState } from 'react';
+
 
 
 export default function Sidebar({ children }) {
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-
 
   return (
     <Box minH="100vh" bg={useColorModeValue()}>
@@ -73,10 +74,8 @@ export default function Sidebar({ children }) {
   );
 }
 
-
-
 const LinkItems = [
-  { name: 'Home', icon: FiHome, to: '/dashboard' },
+  { name: 'Home', icon: AiOutlineDashboard, to: '/dashboard' },
   { name: 'Transactions', icon: FiCreditCard, to: '/transaction' },
   { name: 'Order Status', icon: MdOutlineFactCheck, to: '/check-order' },
   { name: 'Users', icon: FiUsers, to: '/users' },
@@ -85,35 +84,71 @@ const LinkItems = [
   { name: 'Logout', icon: FiLogOut, to: '/login' },
 ];
 
-const SidebarContent = ({ onClose, ...rest }) => {
-  return (
-    <Box
-      transition="3s ease"
-      bg={useColorModeValue('white', 'gray.900')}
-      borderRight="1px"
-      borderRightColor={useColorModeValue('gray.200', 'gray.700')}
-      w={{ base: 'full', md: 60 }}
-      pos="fixed"
-      h="full"
-      {...rest}
-    >
+const LinkItemsCustomer = [
+  { name: 'Room Types', icon: BsDoorOpen, to: '/room-types' },
+  { name: 'Logout', icon: FiLogOut, to: '/login' },
+];
 
-      <Flex h="20" alignItems="center" mx="6" justifyContent="space-between">
-        <Flex alignItems="center">
-          <Image src={logo} alt="Logo" width={38} mr={1}
-            css={localStorage.getItem('chakra-ui-color-mode') === 'light' ? { filter: 'invert(0)' } : { filter: "invert(1)" }}
-          />
-          <Text fontWeight="regular">Slanda Hotel</Text>
+const SidebarContent = ({ onClose, ...rest }) => {
+  if (localStorage.getItem("role") === "CUSTOMER") {
+    return (
+      <Box
+        transition="3s ease"
+        bg={useColorModeValue('white', 'gray.900')}
+        borderRight="1px"
+        borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+        w={{ base: 'full', md: 60 }}
+        pos="fixed"
+        h="full"
+        {...rest}
+      >
+        <Flex h="20" alignItems="center" mx="6" justifyContent="space-between">
+          <Flex alignItems="center">
+            <Image src={logo} alt="Logo" width={38} mr={1}
+              css={localStorage.getItem('chakra-ui-color-mode') === 'light' ? { filter: 'invert(0)' } : { filter: "invert(1)" }}
+            />
+            <Text fontWeight="regular">Slanda Hotel</Text>
+          </Flex>
+          <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
         </Flex>
-        <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
-      </Flex>
-      {LinkItems.map((link) => (
-        <NavItem key={link.name} icon={link.icon} to={link.to}>
-          {link.name}
-        </NavItem>
-      ))}
-    </Box>
-  );
+        
+        {LinkItemsCustomer.map((link) => (
+          <NavItem key={link.name} icon={link.icon} to={link.to}>
+            {link.name}
+          </NavItem>
+        ))}
+      </Box>
+    );
+  } else {
+    return (
+      <Box
+        transition="3s ease"
+        bg={useColorModeValue('white', 'gray.900')}
+        borderRight="1px"
+        borderRightColor={useColorModeValue('gray.200', 'gray.700')}
+        w={{ base: 'full', md: 60 }}
+        pos="fixed"
+        h="full"
+        {...rest}
+      >
+        <Flex h="20" alignItems="center" mx="6" justifyContent="space-between">
+          <Flex alignItems="center">
+            <Image src={logo} alt="Logo" width={38} mr={1}
+              css={localStorage.getItem('chakra-ui-color-mode') === 'light' ? { filter: 'invert(0)' } : { filter: "invert(1)" }}
+            />
+            <Text fontWeight="regular">Slanda Hotel</Text>
+          </Flex>
+          <CloseButton display={{ base: 'flex', md: 'none' }} onClick={onClose} />
+        </Flex>
+        
+        {LinkItems.map((link) => (
+          <NavItem key={link.name} icon={link.icon} to={link.to}>
+            {link.name}
+          </NavItem>
+        ))}
+      </Box>
+    );
+  }
 };
 
 const NavItem = ({ icon, children, to, ...rest }) => {
@@ -150,15 +185,9 @@ const NavItem = ({ icon, children, to, ...rest }) => {
 
 
 const MobileNav = ({ onOpen, ...rest }) => {
-  const handleThemeChange = () => {
-    if (localStorage.getItem('chakra-ui-color-mode') === 'light') {
-      localStorage.setItem('chakra-ui-color-mode', 'dark')
-      window.location.reload()
-    } else {
-      localStorage.setItem('chakra-ui-color-mode', 'light')
-      window.location.reload()
-    }
-  }
+  const [openProfile, setOpenProfile] = useState(false)
+  const { colorMode, toggleColorMode } = useColorMode();
+
   const apiURL = import.meta.env.VITE_API_URL
   const navigate = useNavigate()
 
@@ -169,6 +198,10 @@ const MobileNav = ({ onOpen, ...rest }) => {
 
   return (
     <>
+      <ProfileModal
+        isOpen={openProfile}
+        onClose={() => setOpenProfile(false)}
+      />
       <Flex
         ml={{ base: 0, md: 60 }}
         px={{ base: 4, md: 4 }}
@@ -179,7 +212,6 @@ const MobileNav = ({ onOpen, ...rest }) => {
         borderBottomColor={useColorModeValue('gray.200', 'gray.700')}
         justifyContent={{ base: 'space-between', md: 'flex-end' }}
         {...rest}>
-
 
         <IconButton
           display={{ base: 'flex', md: 'none' }}
@@ -197,7 +229,6 @@ const MobileNav = ({ onOpen, ...rest }) => {
           Slanda Hotel
         </Text>
 
-
         <HStack spacing={{ base: '2', md: '6' }}>
           <LiveClock />
           <Tooltip hasArrow label={'Switch App Theme'}>
@@ -206,7 +237,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
               variant="ghost"
               aria-label="open menu"
               icon={<FiMoon />}
-              onClick={() => handleThemeChange()}
+              onClick={toggleColorMode}
             />
           </Tooltip>
 
@@ -214,7 +245,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
             <IconButton
               size="lg"
               variant="ghost"
-              aria-label="open menu"
+              aria-label="Toggle Color Mode"
               icon={<FiBell />}
             />
           </Tooltip>
@@ -249,8 +280,7 @@ const MobileNav = ({ onOpen, ...rest }) => {
               <MenuList
                 bg={useColorModeValue('white', 'gray.900')}
                 borderColor={useColorModeValue('gray.200', 'gray.700')}>
-                <MenuItem>Profile</MenuItem>
-                <MenuDivider />
+                <MenuItem onClick={() => setOpenProfile(true)}>Profile</MenuItem>
                 <MenuItem onClick={handleLogout}>Sign out</MenuItem>
               </MenuList>
             </Menu>

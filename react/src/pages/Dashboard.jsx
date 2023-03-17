@@ -25,12 +25,12 @@ import format from "../helpers/dateFormat";
 import Head from "../helpers/headTitle";
 import { HiOutlineArrowSmRight } from "react-icons/hi";
 import withRoleGuard from "../helpers/roleGuard";
+import OrderStatusTag from "../components/atomic/orderStatusTag/OrderStatusTag";
 
 const Dashboard = () => {
   const [order, setOrder] = useState([]);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [itemsPerPage, setItemsPerPage] = useState(10);
   const apiURL = import.meta.env.VITE_API_URL;
 
   const page = 1;
@@ -45,7 +45,7 @@ const Dashboard = () => {
     async function fetchTransaction() {
       const queryParams = new URLSearchParams({
         page: page || 1,
-        limit: itemsPerPage || 10,
+        limit: 10,
         start_date: startDate || "",
         end_date: endDate || "",
       });
@@ -128,7 +128,7 @@ const Dashboard = () => {
                 </Tr>
               </Thead>
               <Tbody>
-                {order.map((tb, index) => {
+                {order.slice(0, 10).map((tb, index) => {
                   return (
                     <Tr key={index}>
                       <Td>{tb.order_number}</Td>
@@ -137,24 +137,7 @@ const Dashboard = () => {
                       <Td>{tb.order_email}</Td>
 
                       <Td>
-                        {(() => {
-                          switch (tb.order_status) {
-                            case "Default":
-                              return (
-                                <Badge alignContent={"center"}>Default</Badge>
-                              );
-                            case "NEW":
-                              return <Badge colorScheme="green">NEW</Badge>;
-                            case "CHECK-IN":
-                              return <Badge colorScheme="yellow">CHECK-IN</Badge>;
-                            case "CHECK-OUT":
-                              return <Badge colorScheme="blue">CHECK-OUT</Badge>;
-                            case "CANCEL":
-                              return <Badge colorScheme="red">CANCEL</Badge>;
-                            default:
-                              return <Badge>{tb.order_status}</Badge>;
-                          }
-                        })()}
+                       <OrderStatusTag orderStatus={tb.order_status}/>
                       </Td>
 
                       <Td>{format.formatDate(tb.checkin_date)}</Td>
@@ -179,4 +162,4 @@ const Dashboard = () => {
 
 };
 
-export default withRoleGuard(Dashboard, ["ADMIN", "RECEPTIONIST"]);
+export default withRoleGuard(Dashboard, ["ADMIN", "RECEPTIONIST", "SUPERADMIN"]);
