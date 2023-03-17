@@ -5,24 +5,56 @@ const { room, room_type, order_details } = require('../../models')
 module.exports = {
 
      async getAvailableRoom(checkin_date, checkout_date, room_type_id) {
-          const query = `
-            SELECT rooms.id, room_types.id AS type_id, room_types.room_type_name, rooms.room_number
-            FROM rooms
-            LEFT JOIN room_types ON rooms.id_room_type = room_types.id
-            LEFT JOIN order_details ON order_details.id_room = rooms.id AND order_details.access_date BETWEEN ? AND ?
-            WHERE order_details.access_date IS NULL
-            AND room_types.id = ?
-          `;
-
-          const replacements = [checkin_date, checkout_date, room_type_id];
-
+          let query;
+          let replacements = [checkin_date, checkout_date];
+        
+          if (room_type_id) {
+            query = `
+              SELECT rooms.id, room_types.id AS type_id, room_types.room_type_name, rooms.room_number
+              FROM rooms
+              LEFT JOIN room_types ON rooms.id_room_type = room_types.id
+              LEFT JOIN order_details ON order_details.id_room = rooms.id AND order_details.access_date BETWEEN ? AND ?
+              WHERE order_details.access_date IS NULL AND rooms.id_room_type = ?
+            `;
+            replacements.push(room_type_id);
+          } else {
+            query = `
+              SELECT rooms.id, room_types.id AS type_id, room_types.room_type_name, rooms.room_number
+              FROM rooms
+              LEFT JOIN room_types ON rooms.id_room_type = room_types.id
+              LEFT JOIN order_details ON order_details.id_room = rooms.id AND order_details.access_date BETWEEN ? AND ?
+              WHERE order_details.access_date IS NULL
+            `;
+          }
+     
           const availableRooms = await sequelize.query(query, {
-               replacements,
-               type: sequelize.QueryTypes.SELECT,
+            replacements,
+            type: sequelize.QueryTypes.SELECT,
           });
-
+        
           return availableRooms;
-     },
+        },
+        
+
+     // async getAvailableRoom(checkin_date, checkout_date, room_type_id) {
+     //      const query = `
+     //        SELECT rooms.id, room_types.id AS type_id, room_types.room_type_name, rooms.room_number
+     //        FROM rooms
+     //        LEFT JOIN room_types ON rooms.id_room_type = room_types.id
+     //        LEFT JOIN order_details ON order_details.id_room = rooms.id AND order_details.access_date BETWEEN ? AND ?
+     //        WHERE order_details.access_date IS NULL
+            
+     //      `;
+
+     //      const replacements = [checkin_date, checkout_date];
+
+     //      const availableRooms = await sequelize.query(query, {
+     //           replacements,
+     //           type: sequelize.QueryTypes.SELECT,
+     //      });
+
+     //      return availableRooms;
+     // },
 
      // async getAvailableRoom(checkin_date, checkout_date, room_type_name) {
      //      const query = `
@@ -51,7 +83,7 @@ module.exports = {
           return remainingRooms
      }
 
-     // async getRemainingRoom(checkin_date, checkout_date) {
+     // async getRemainingRoom(checkin_date, checkout_date)2 {
 
      //      const availableRooms = await room.findAll({
      //           attributes: ['id', 'room_number'],

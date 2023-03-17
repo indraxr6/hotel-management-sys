@@ -16,8 +16,8 @@ module.exports = {
                          as: "room_types",
                          attributes: ["room_type_name"],
                     },
-                    offset,
-                    limit,
+                    // offset,
+                    // limit,
                });
 
                const roomData = rows.map((room) => {

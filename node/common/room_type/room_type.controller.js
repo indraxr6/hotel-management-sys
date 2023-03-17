@@ -65,7 +65,12 @@ module.exports = {
      },
      async addRoomType(req, res) {
           try {
-               const { room_type_name, price, description } = req.body;
+               const { room_type_name, price, description, facilities } = req.body;
+               if (!room_type_name || !price || !description || !facilities) {
+                    return res.status(400).json({
+                         message: "Please fill in all fields."
+                    })
+               }
                if (!req.files || Object.keys(req.files).length === 0) {
                     return res.status(400).json({
                          message: 'No files were uploaded.'
@@ -82,6 +87,7 @@ module.exports = {
                          room_type_name,
                          price,
                          description,
+                         facilities,
                          photo: photo.name
                     });
                     res.status(201).json({
@@ -104,8 +110,7 @@ module.exports = {
           })
           res.status(201).json({
                status_code: 201,
-               message: `Success delete record with ID ${id}`,
-               deleted_record: del
+               message: `Success deleted room Type`,
           })
           if (!del) {
                return res.status(404).json({
@@ -118,7 +123,7 @@ module.exports = {
      async editRoomType(req, res) {
           try {
                const id = req.params.id
-               const { room_type_name, price, description } = req.body
+               const { room_type_name, price, description, facilities } = req.body
                if (!req.files || Object.keys(req.files).length === 0) {
                     return res.status(400).json({
                          message: 'No files were uploaded.'
@@ -138,6 +143,7 @@ module.exports = {
                          room_type_name,
                          price,
                          description,
+                         facilities,
                          photo: photo.name
                     }, {
                          where: { id: id }

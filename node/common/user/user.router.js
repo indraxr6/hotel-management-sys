@@ -16,8 +16,14 @@ const fileUpload = require('../../middleware/fileUpload')
 router.get('/', controller.getAll)
 router.get('/:id', controller.getUserById)
 router.post('/register', fileupload({createParentPath : true}), controller.register)
-router.put('/edit/:id', fileupload({createParentPath : true}), controller.editUser)
+// router.put('/edit/:id', fileupload({createParentPath : true}), controller.editUser)
+router.put('/editPhoto/:id', fileupload({createParentPath : true}), controller.changeProfilePhoto)
 router.delete('/delete/:id', controller.deleteUser)
+
+router.put('/editrole/:id',controller.changeRole)
+router.put('/editname/:id',controller.changeName)
+router.put('/changepassword/:id',controller.changePassword)
+
 // router.delete('/delete/:id', checkToken, verifyRole, controller.deleteUser)
 
 router.get('images/:filename', (req, res) => {

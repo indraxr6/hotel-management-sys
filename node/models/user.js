@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "id",
         as: 'order'
       })
+      // this.hasMany(models.token, {
+      //   foreignKey: "userId",
+      //   as: "userId"
+      // })
     }
   }
   user.init({
@@ -24,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
     role: {
       type: DataTypes.ENUM,
       allowNull: false,
-      values: ['ADMIN', 'RECEPTIONIST']
+      values: ['ADMIN', 'RECEPTIONIST', 'SUPERADMIN', 'CUSTOMER']
     }
   }, {
     sequelize,
