@@ -9,7 +9,7 @@ const port = process.env.SERVER_PORT || 5000
 const app = express()
 
 app.use(express.json())
-app.use(express.urlencoded({extended: true}))
+app.use(express.urlencoded({ extended: true }))
 
 app.use(express.static('public'))
 app.use(express.static(path.join(__dirname, "..", "build")))
@@ -20,6 +20,14 @@ app.use((req, res, next) => {
      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
      next()
 })
+
+app.use(express.static('public', {
+     setHeaders: (res, path, stat) => {
+          if (path.endsWith('.js')) {
+               res.set('Content-Type', 'application/javascript');
+          }
+     },
+}));
 
 // const storage = multer.diskStorage({
 //      destination: function (req, file, cb) {
@@ -46,10 +54,11 @@ app.use("/user", require('./common/user/user.router'))
 app.use("/room", require('./common/room/room.router'))
 app.use("/room-type", require('./common/room_type/room_type.router'))
 app.use("/order", require('./common/order/order.router'))
+app.use("/get-stats", require('./common/stats/stats.router'))
 
 app.get("*", (req, res) => {
      res.sendFile(path.join(__dirname, "client", "index.html"));
-   });
+});
 
 
 db.sequelize.sync().then(() => {

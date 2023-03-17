@@ -36,6 +36,10 @@ import { GrContactInfo } from "react-icons/gr";
 import AlertConfirmation from "../components/atomic/alertConfirmation/alertConfirmation";
 import Lottie from "lottie-react";
 import successIcon from '../assets/lotties/success.json';
+import Head from "../helpers/headTitle";
+import withRoleGuard from "../helpers/roleGuard";
+import moment from "moment";
+import BackButton from '../components/atomic/backArrow/BackArrow'
 
 function AddTransactionPage() {
      const [roomType, setRoomType] = useState([]);
@@ -54,7 +58,6 @@ function AddTransactionPage() {
      const [animation, setAnimation] = useState(false);
      const isValidDate = checkinDate <= checkoutDate;
      const validDate = isValidDate || (!checkinDate && !checkoutDate);
-
      const apiURL = import.meta.env.VITE_API_URL;
      const navigate = useNavigate();
 
@@ -97,15 +100,29 @@ function AddTransactionPage() {
      };
 
      const handleTransactionDetail = () => {
-          navigate(`/transaction/${orderId}`);
+          window.open(`/transaction/${orderId}`, "_blank");
+          // navigate(`/transaction/${orderId}`);
      };
-
 
      const findRequest = {
           checkin_date: checkinDate,
           checkout_date: checkoutDate,
           room_type_name: roomTypeReq,
      };
+
+     const transactionData = {
+          order_name: orderName,
+          order_email: orderEmail,
+          checkin_date: moment(checkinDate).format('YYYY-MM-DD'),
+          checkout_date: moment(checkoutDate).format('YYYY-MM-DD'),
+          // checkin_date: checkinDate,
+          // checkout_date: checkoutDate,
+          guest_name: guestName,
+          id_room_type: parseInt(roomTypeReq),
+          id_room: roomNumberReq,
+          id_user: localStorage.getItem("id"),
+     };
+
 
      useEffect(() => {
           async function fetchRoomTypes() {
@@ -153,6 +170,8 @@ function AddTransactionPage() {
                     body: JSON.stringify(transactionData),
                });
                const data = await response.json();
+               console.log(transactionData);
+               console.log(data);
                if (response.ok) {
                     setCheckinDate('')
                     setCheckoutDate('')
@@ -160,22 +179,12 @@ function AddTransactionPage() {
                     setRoomNumberReq([])
                     setAnimation(true)
                }
-               setOrderId(data.order_data.order.order_number);
+               setOrderId(data.order_data.order_number);
           } catch (error) {
                console.log("Error making order:", error);
           }
      };
 
-     const transactionData = {
-          order_name: orderName,
-          order_email: orderEmail,
-          checkin_date: checkinDate,
-          checkout_date: checkoutDate,
-          guest_name: guestName,
-          id_room_type: parseInt(roomTypeReq),
-          id_room: roomNumberReq,
-          id_user: "@MYDWJ",
-     };
 
      const defaultOptions = {
           loop: true,
@@ -193,6 +202,10 @@ function AddTransactionPage() {
 
      return (
           <Sidebar>
+               <Head title='Add Transaction' description={''} />
+               <Flex h="12" alignItems="flex-start" mx="29px" justifyContent="space-between">
+                    <BackButton />
+               </Flex>
                <Flex h="5" alignItems="flex-start" mx="31px" justifyContent="space-between">
                     <Text fontSize="14px" fontFamily="monospace" fontWeight="thin">
                          Dashboard
@@ -224,7 +237,7 @@ function AddTransactionPage() {
                          </BreadcrumbItem>
                     </Breadcrumb>
 
-                    { animation  ?
+                    {animation ?
                          <>
                               <ScaleFade in={animation}>
                                    <Flex justifyContent="center" alignItems="center" >
@@ -308,7 +321,7 @@ function AddTransactionPage() {
                          </Box>
                     }
 
-                    { checkinDate && checkoutDate && roomTypeReq && validDate ? (
+                    {checkinDate && checkoutDate && roomTypeReq && validDate ? (
                          <div>
                               {isLoading ? (
                                    <p>Loading...</p>
@@ -431,4 +444,4 @@ function AddTransactionPage() {
      );
 }
 
-export default AddTransactionPage;
+export default withRoleGuard(AddTransactionPage, ["ADMIN", "RECEPTIONIST", "SUPERADMIN", "CUSTOMER"]);

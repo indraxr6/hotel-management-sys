@@ -37,7 +37,10 @@ module.exports = {
   async updateOrderData(req, res) {
     try {
       const { id } = req.params
-      const { order_name, order_email, guest_name, id_user } = req.body
+      // const { order_name, order_email, guest_name } = req.body
+      const order_name = req.body?.order_name;
+      const order_email = req.body?.order_email;
+      const guest_name = req.body?.guest_name;
 
       const orderToEdit = await order.findByPk(id)
       if (!orderToEdit) return res.status(404).send({ error: 'Order not found' })
@@ -46,7 +49,6 @@ module.exports = {
         order_name,
         order_email,
         guest_name,
-        id_user
       })
 
       res.status(200).send({

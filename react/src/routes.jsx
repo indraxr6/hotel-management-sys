@@ -10,6 +10,11 @@ import RoomList from './pages/RoomList';
 import CheckOrder from './pages/CheckOrder';
 import AddTransaction from './pages/AddTransaction';
 import TransactionDetail from './pages/TransactionDetail';
+import withRoleGuard from './helpers/roleGuard';
+import RoomTypesAdd from './pages/RoomTypesAdd';
+import NotFound from './pages/NotFound';
+import RoomTypesEdit from './pages/RoomTypesEdit';
+import RoomAdd from './pages/RoomAdd';
 // import OrderPage from './pages/OrderPage';
 
 
@@ -48,6 +53,10 @@ const routes = [
     component: <RoomList/>
   },
   {
+    path: '/room/add',
+    component: <RoomAdd/>
+  },
+  {
     path: '/room-types',
     component: <RoomTypes/>
   },
@@ -56,12 +65,25 @@ const routes = [
     component: <RoomTypeDetail/>
   },
   {
+    path: '/room-types/add',
+    component: <RoomTypesAdd/>
+  },
+  {
+    path: '/room-types/edit/:id',
+    component: <RoomTypesEdit/>
+  },
+  {
     path: '/transaction/:id',
     component: <TransactionDetail/>
   },
   {
     path: '/check-order',
-    component: <CheckOrder/>
+    component: <CheckOrder/>,
+    title: 'Check Order'
+  },
+  {
+    path: '',
+    component: <NotFound/>,
   },
 //   {
 //     path: '/order',

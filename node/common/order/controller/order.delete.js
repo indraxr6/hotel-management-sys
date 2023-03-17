@@ -7,7 +7,7 @@ module.exports = {
           const orderIdField = req.params.id ? 'id' : 'order_number';
           try {
                const orderData = await order.findOne({
-                    where: { [orderIdField]: orderId }
+                    where: { order_number: orderId }
                });
                if (!orderData) {
                     return res.status(404).json({
@@ -28,7 +28,7 @@ module.exports = {
                }
      
                const deletedOrder = await order.destroy({
-                    where: { [orderIdField]: orderId }
+                    where: { order_number: orderId }
                });
      
                if (deletedOrder === 0) {
